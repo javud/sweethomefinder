@@ -20,7 +20,7 @@ This is the README for our temp repo.
 
 **To Deactivate**
 
-4. In your terminal run deacticate to kill the virtual environment
+5. In your terminal run deacticate to kill the virtual environment
 
 **Make sure not to add any files to the virtual environment that is specifically for adding libraries and imports**
 
