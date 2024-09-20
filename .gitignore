@@ -1,0 +1,12 @@
+# Python virtual environment
+sweetHomeFinderEnv/
+
+# Node.js
+node_modules/
+
+# Other common files
+*.pyc
+__pycache__/
+
+# MacOS-specific files
+.DS_Store
