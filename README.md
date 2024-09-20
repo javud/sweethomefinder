@@ -15,9 +15,11 @@ This is the README for our temp repo.
 3. In a terminal run the command: source sweetHomeFinderEnv/bin/activate
 
 **To install dependencies**
+
 4. pip install -r requirements.txt 
 
 **To Deactivate**
+
 4. In your terminal run deacticate to kill the virtual environment
 
 **Make sure not to add any files to the virtual environment that is specifically for adding libraries and imports**
@@ -29,8 +31,11 @@ This is the README for our temp repo.
 2. cd into frontend
 
 **To install dependencies**
+
 3. npm install
 
 **To activate**
+
 4. npm start
+
 This will open the React app in your default web browser.
