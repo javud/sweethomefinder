@@ -6,6 +6,7 @@ import HomePage from './pages/homePage';
 import QuizPage from './pages/quizPage';
 import NavBar from './components/navBar';
 import Footer from './components/footer';
+import LoginPage from './pages/loginPage';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/quiz" element={<QuizPage />} />
+          <Route path="/login" element={<LoginPage />} />
           
           {/* Add more routes as needed */}
         </Routes>
