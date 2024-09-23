@@ -4,23 +4,21 @@
 
 This is the README for our temp repo.
 
-## To run the python backend virtual environment:
-
 1. Clone or fork tempCS440Repo which already includes the project directory and the virtual environment
 
 2. Open tempCS440Repo in your IDE
 
-**To activate**
-
-3. In a terminal run the command: source sweetHomeFinderEnv/bin/activate
+## To run the node.js & express azure SQL backend
 
 **To install dependencies**
 
-4. pip install -r requirements.txt 
+3. npm install
 
-**To Deactivate**
+**To activate**
 
-5. In your terminal run deacticate to kill the virtual environment
+4. cd into backend
+
+5. node server.js
 
 **Make sure not to add any files to the virtual environment that is specifically for adding libraries and imports**
 
