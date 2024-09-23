@@ -1,7 +1,6 @@
 // src/pages/homePage.js
 import React from 'react';
 import '../styles/homePage.scss';
-import landingImage from '../assets/landingImage.jpg';
 import unsplashImage from '../assets/unsplash.jpg';
 import { Link } from 'react-router-dom';
 

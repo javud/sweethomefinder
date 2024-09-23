@@ -2,7 +2,7 @@
 
 import React from 'react';
 import '../styles/loginPage.scss';
-import loginBackground from '../assets/loginImg.jpg';
+// import loginBackground from '../assets/loginImg.jpg';
 import loginBackground2 from '../assets/unsplash2.jpg';
 
 function LoginPage() {
