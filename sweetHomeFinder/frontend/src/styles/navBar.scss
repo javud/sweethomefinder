@@ -1,0 +1,133 @@
+// src/styles/navBar.scss
+
+// Variables
+$primary-color: #2d5da0;
+$link-color: white;
+
+// Mixin for Flexbox Centering
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.navbar {
+  background-color: $primary-color;
+  padding: 20px;
+  position: relative;
+
+  .navbar-container {
+    @include flex-center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .navbar-logo {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: $link-color;
+  }
+
+  .menu-btn {
+    display: none; // Hidden on larger screens
+    cursor: pointer;
+    position: relative;
+    z-index: 10;
+
+    .btn-line {
+      width: 30px;
+      height: 3px;
+      margin: 5px 0;
+      background-color: $link-color;
+      transition: all 0.5s ease-out;
+    }
+
+    &.close .btn-line:nth-child(1) {
+      transform: rotate(45deg) translate(6px, 6px);
+    }
+
+    &.close .btn-line:nth-child(2) {
+      opacity: 0;
+    }
+
+    &.close .btn-line:nth-child(3) {
+      transform: rotate(-45deg) translate(6px, -6px);
+    }
+  }
+
+  .navbar-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+
+    li {
+      a {
+        color: $link-color;
+        text-decoration: none;
+        position: relative;
+        padding-bottom: 5px;
+
+        &:after {
+          content: '';
+          position: absolute;
+          width: 0;
+          height: 2px;
+          left: 0;
+          bottom: 0;
+          background-color: $link-color;
+          transition: width 0.3s ease-in-out;
+        }
+
+        &:hover:after {
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  // Mobile styles
+  @media (max-width: 768px) {
+    .navbar-container {
+      justify-content: space-between;
+    }
+
+    .menu-btn {
+      display: block;
+    }
+
+    .navbar-links {
+      position: absolute;
+      top: 76%; // Start hidden just below the navbar
+      left: 0;
+      width: 100%;
+      background-color: $primary-color;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 10px 0;
+      z-index: 10;
+      transform: translateY(-100%); // Initially hidden by moving it above the view
+      transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+      opacity: 0; // Initially transparent
+
+      li {
+        padding: 10px 0;
+        text-align: center;
+
+        a {
+          font-size: 1.2rem;
+        }
+      }
+    }
+
+    .navbar-links.show {
+      transform: translateY(0); // Slide down into view
+      opacity: 1; // Fade in
+    }
+
+    .navbar-links.hide {
+      transform: translateY(-100%); // Slide back up off-screen
+      opacity: 1; // Fade out
+    }
+  }
+}

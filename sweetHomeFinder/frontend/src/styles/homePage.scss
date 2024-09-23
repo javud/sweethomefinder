@@ -1,0 +1,84 @@
+// src/styles/homePage.scss
+
+// Variables
+$primary-color: #2d5da0;
+$cta-bg-color: $primary-color;
+$cta-hover-color: #1c3d70;
+$hero-text-color: white;
+
+// Mixin for Flexbox Centering
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+// Base styles for the homepage
+.home-page {
+  font-family: 'Poppins', sans-serif;
+
+  .hero-section {
+    position: relative;
+    width: 100%;
+    height: 60vh;
+    overflow: hidden;
+
+    .hero-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover; // Ensures the image covers the width but remains proportional
+      filter: brightness(0.75); // Darkens the image slightly for text visibility
+    }
+
+    .hero-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: $hero-text-color;
+      text-align: center;
+
+      h1 {
+        font-size: 3rem;
+        margin-bottom: 20px;
+      }
+
+      p {
+        font-size: 1.5rem;
+        margin-bottom: 30px;
+      }
+
+      .cta-button {
+        background-color: $cta-bg-color;
+        color: white;
+        padding: 15px 40px;
+        border: none;
+        font-size: 1.2rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+          background-color: $cta-hover-color;
+        }
+      }
+    }
+  }
+}
+
+// Mobile styles
+@media (max-width: 768px) {
+  .hero-text {
+    h1 {
+      font-size: 2rem;
+    }
+
+    p {
+      font-size: 1rem;
+    }
+
+    .cta-button {
+      padding: 12px 30px;
+    }
+  }
+}

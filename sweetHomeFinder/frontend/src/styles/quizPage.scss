@@ -1,0 +1,184 @@
+// src/styles/quizPage.scss
+
+// Variables
+$primary-color: #2d5da0;
+$secondary-color: #ffd700;
+$hover-color: #1c3d70;
+$text-color: #333;
+$box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+$progress-bg: #ddd;
+$progress-fill: $primary-color;
+
+// Mixin for flex centering
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.quiz-page {
+  @include flex-center;
+  flex-direction: column;
+  // padding: 20px 20px; // Reduced padding to reduce gap between navbar and progress bar
+  font-family: 'Poppins', sans-serif;
+  background-color: #f4f4f9;
+  min-height: 100vh;
+
+  // Progress Bar
+  .progress-bar-container {
+    @include flex-center;
+    margin-bottom: 20px; // Slightly reduced margin to bring the progress bar closer to the card
+    width: 100%;
+    max-width: 600px;
+
+    .progress-bar {
+      background-color: $progress-bg;
+      border-radius: 20px;
+      overflow: hidden;
+      width: 100%;
+      height: 20px;
+
+      .progress-bar-fill {
+        height: 100%;
+        background-color: $progress-fill;
+        transition: width 0.3s ease-in-out;
+      }
+    }
+
+    .questions-left {
+      margin-left: 20px;
+      font-size: 1.2rem;
+      color: $primary-color;
+    }
+  }
+
+  // Question Card
+  .question-card {
+    background-color: white;
+    box-shadow: $box-shadow;
+    padding: 30px 30px; // Reduced padding to make card more compact
+    border-radius: 15px;
+    max-width: 600px;
+    width: 100%;
+    text-align: left;
+    position: relative; /* For button positioning */
+
+    h2 {
+      font-size: 1.8rem;
+      color: $primary-color;
+      margin-bottom: 15px;
+    }
+
+    p {
+      font-size: 1.2rem;
+      color: $text-color;
+      margin-bottom: 30px;
+    }
+
+    // Answer Buttons
+    .answer-buttons {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 40px;
+
+      .answer-button {
+        padding: 10px 20px;
+        background-color: $primary-color;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+          background-color: $hover-color;
+        }
+      }
+    }
+
+    // Navigation Buttons
+    .navigation-buttons {
+      display: flex;
+      justify-content: space-between;
+      position: absolute;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      padding: 0 30px;
+
+      .prev-button, .next-button {
+        padding: 12px 30px;
+        background-color: $primary-color;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        position: relative;
+        display: flex;
+        align-items: center;
+
+        &:hover {
+          background-color: $hover-color;
+        }
+      }
+
+      // Arrow hover animations
+      .prev-button::before, .next-button::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        transition: border-color 0.3s ease;
+      }
+
+      .prev-button::before {
+        border-width: 6px 10px 6px 0;
+        border-color: transparent white transparent transparent;
+        left: -20px;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0;
+      }
+
+      .next-button::after {
+        border-width: 6px 0 6px 10px;
+        border-color: transparent transparent transparent white;
+        right: -20px;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0;
+      }
+
+      .prev-button:hover::before {
+        opacity: 1;
+      }
+
+      .next-button:hover::after {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+// Mobile styles
+@media (max-width: 768px) {
+  .quiz-page {
+    padding: 30px 15px;
+  }
+
+  .question-card {
+    padding: 30px 20px;
+  }
+
+  .answer-buttons {
+    flex-direction: column;
+    margin-bottom: 30px; // Ensure spacing is good on mobile as well
+  }
+
+  .navigation-buttons {
+    padding: 0 15px;
+  }
+}
