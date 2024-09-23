@@ -15,6 +15,7 @@ $hero-text-color: white;
 // Base styles for the homepage
 .home-page {
   font-family: 'Poppins', sans-serif;
+  cursor: url('../assets/cursor.png'), auto;
 
   .hero-section {
     position: relative;
