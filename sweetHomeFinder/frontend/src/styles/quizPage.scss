@@ -19,7 +19,7 @@ $progress-fill: $primary-color;
 .quiz-page {
   @include flex-center;
   flex-direction: column;
-  // padding: 20px 20px; // Reduced padding to reduce gap between navbar and progress bar
+  // padding: 20px 20px;
   font-family: 'Poppins', sans-serif;
   background-color: #f4f4f9;
   min-height: 100vh;
@@ -27,7 +27,7 @@ $progress-fill: $primary-color;
   // Progress Bar
   .progress-bar-container {
     @include flex-center;
-    margin-bottom: 20px; // Slightly reduced margin to bring the progress bar closer to the card
+    margin-bottom: 20px;
     width: 100%;
     max-width: 600px;
 
@@ -56,12 +56,12 @@ $progress-fill: $primary-color;
   .question-card {
     background-color: white;
     box-shadow: $box-shadow;
-    padding: 30px 30px; // Reduced padding to make card more compact
+    padding: 30px 30px; 
     border-radius: 15px;
     max-width: 600px;
     width: 100%;
     text-align: left;
-    position: relative; /* For button positioning */
+    position: relative;
 
     h2 {
       font-size: 1.8rem;
@@ -175,7 +175,7 @@ $progress-fill: $primary-color;
 
   .answer-buttons {
     flex-direction: column;
-    margin-bottom: 30px; // Ensure spacing is good on mobile as well
+    margin-bottom: 30px;
   }
 
   .navigation-buttons {

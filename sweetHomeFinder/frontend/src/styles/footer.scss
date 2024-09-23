@@ -3,8 +3,8 @@
 // Variables
 $footer-bg: #2d5da0;
 $footer-text-color: white;
-$footer-link-color: white; // Updated hover color to white for sleek look
-$footer-link-hover-color: rgba(255, 255, 255, 0.7); // Slight opacity on hover
+$footer-link-color: white;
+$footer-link-hover-color: rgba(255, 255, 255, 0.7);
 
 // Mixin for Flexbox Centering
 @mixin flex-center {
@@ -43,7 +43,7 @@ $footer-link-hover-color: rgba(255, 255, 255, 0.7); // Slight opacity on hover
           transition: color 0.3s ease;
 
           &:hover {
-            color: $footer-link-hover-color; // Subtle hover effect
+            color: $footer-link-hover-color;
           }
         }
       }

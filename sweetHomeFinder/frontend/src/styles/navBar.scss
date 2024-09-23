@@ -29,7 +29,7 @@ $link-color: white;
   }
 
   .menu-btn {
-    display: none; // Hidden on larger screens
+    display: none; 
     cursor: pointer;
     position: relative;
     z-index: 10;
@@ -97,7 +97,7 @@ $link-color: white;
 
     .navbar-links {
       position: absolute;
-      top: 76%; // Start hidden just below the navbar
+      top: 76%; 
       left: 0;
       width: 100%;
       background-color: $primary-color;
@@ -106,9 +106,9 @@ $link-color: white;
       align-items: center;
       padding: 10px 0;
       z-index: 10;
-      transform: translateY(-100%); // Initially hidden by moving it above the view
+      transform: translateY(-100%);
       transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-      opacity: 0; // Initially transparent
+      opacity: 0; 
 
       li {
         padding: 10px 0;
@@ -121,13 +121,13 @@ $link-color: white;
     }
 
     .navbar-links.show {
-      transform: translateY(0); // Slide down into view
-      opacity: 1; // Fade in
+      transform: translateY(0); 
+      opacity: 1; 
     }
 
     .navbar-links.hide {
-      transform: translateY(-100%); // Slide back up off-screen
-      opacity: 1; // Fade out
+      transform: translateY(-100%);
+      opacity: 1;
     }
   }
 }
