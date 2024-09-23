@@ -2,6 +2,7 @@
 import React from 'react';
 import '../styles/homePage.scss';
 import landingImage from '../assets/landingImage.jpg';
+import unsplashImage from '../assets/unsplash.jpg';
 import { Link } from 'react-router-dom';
 
 function HomePage() {
@@ -9,13 +10,13 @@ function HomePage() {
     <div className="home-page">
       {/* Hero Section */}
       <div className="hero-section">
-        <img src={landingImage} alt="Pets" className="hero-image" />
+        <img src={unsplashImage} alt="Pets" className="hero-image" />
         <div className="hero-text">
           <h1>Welcome to Sweet Home Finder</h1>
           <p>Helping you find the perfect pet for your family.</p>
           {/* Link the button to the /quiz page */}
           <Link to="/quiz">
-            <button className="cta-button">Find Your Pet</button>
+            <button className="cta-button">Find Your Perfect Pet</button>
           </Link>
         </div>
       </div>

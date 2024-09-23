@@ -1,9 +1,8 @@
 // src/styles/homePage.scss
 
+@import 'global.scss';
+
 // Variables
-$primary-color: #2d5da0;
-$cta-bg-color: $primary-color;
-$cta-hover-color: #1c3d70;
 $hero-text-color: white;
 
 // Mixin for Flexbox Centering
@@ -20,7 +19,7 @@ $hero-text-color: white;
   .hero-section {
     position: relative;
     width: 100%;
-    height: 60vh;
+    height: 100vh;
     overflow: hidden;
 
     .hero-image {

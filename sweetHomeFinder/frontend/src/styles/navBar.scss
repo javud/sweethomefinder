@@ -1,7 +1,7 @@
 // src/styles/navBar.scss
 
 // Variables
-$primary-color: #2d5da0;
+$primary-color: #5b00bc;
 $link-color: white;
 
 // Mixin for Flexbox Centering
@@ -26,6 +26,11 @@ $link-color: white;
     font-size: 1.5rem;
     font-weight: 600;
     color: $link-color;
+  }
+
+  .navbar-logo img {
+    height: 40px;
+    width: auto;
   }
 
   .menu-btn {

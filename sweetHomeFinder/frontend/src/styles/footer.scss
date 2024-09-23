@@ -1,7 +1,8 @@
 // src/styles/footer.scss
 
+@import 'global.scss';
+
 // Variables
-$footer-bg: #2d5da0;
 $footer-text-color: white;
 $footer-link-color: white;
 $footer-link-hover-color: rgba(255, 255, 255, 0.7);
@@ -15,7 +16,7 @@ $footer-link-hover-color: rgba(255, 255, 255, 0.7);
 
 // Footer Styles
 .footer {
-  background-color: $footer-bg;
+  background-color: $primary-color;
   color: $footer-text-color;
   padding: 20px 0;
   text-align: center;

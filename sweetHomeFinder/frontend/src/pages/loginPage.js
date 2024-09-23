@@ -3,10 +3,11 @@
 import React from 'react';
 import '../styles/loginPage.scss';
 import loginBackground from '../assets/loginImg.jpg';
+import loginBackground2 from '../assets/unsplash2.jpg';
 
 function LoginPage() {
     return (
-      <div className="login-page" style={{ backgroundImage: `url(${loginBackground})` }}>
+      <div className="login-page" style={{ backgroundImage: `url(${loginBackground2})` }}>
         <div className="login-container">
           <h2>Welcome to Sweet Home Finder</h2>
           <div className="pet-icon">🐾</div>

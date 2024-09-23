@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import logo from '../assets/logo-no-background.png';
 import '../styles/navBar.scss';
 
 function NavBar() {
@@ -15,7 +16,7 @@ function NavBar() {
     <nav className="navbar">
       <div className="navbar-container">
         <div className="navbar-logo">
-          Sweet Home Finder
+          <img src={logo} alt="Sweet Home Finder" draggable="false"/>
         </div>
         {/* Hamburger menu icon */}
         <div className={`menu-btn ${isOpen ? 'close' : ''}`} onClick={toggleMenu}>
