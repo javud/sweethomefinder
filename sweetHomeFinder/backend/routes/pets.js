@@ -31,4 +31,16 @@ router.post('/', async (req, res) => {
   }
 });
 
+// Test endpoint to fetch data from the Pets table
+router.get('/test', async (req, res) => {
+  try {
+    const result = await sql.query`SELECT TOP 1 * FROM Pets`;
+    res.json(result.recordset);
+  } catch (err) {
+    console.error('Error fetching test data:', err);
+    res.status(500).send('Server error');
+  }
+});
+
+
 module.exports = router;

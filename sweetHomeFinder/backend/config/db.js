@@ -7,10 +7,13 @@ const sql = require('mssql');
 const config = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  server: process.env.DB_SERVER, // e.g., 'your-server.database.windows.net'
+  server: process.env.DB_SERVER, // e.g., '440.database.windows.net'
   database: process.env.DB_NAME,
   options: {
-    encrypt: true, // Use this if you're connecting to Azure SQL
+    encrypt: true, // Use encryption for Azure SQL
+    trustServerCertificate: false, // Set this explicitly for Azure SQL
+    enableArithAbort: true, // This is required by Azure SQL
+    connectTimeout: 30000, // Increase the timeout to 30 seconds
   },
 };
 

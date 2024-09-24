@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import '../styles/quizPage.scss'; 
+import { useUser } from '@clerk/clerk-react';
+import { useNavigate } from 'react-router-dom';
+import '../styles/quizPage.scss';
 
 function QuizPage() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState(null); // Track selected answer
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useUser();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadQuizData = async () => {
       try {
-        const response = await fetch('/quiz_questions.xml'); // Ensure the XML file is in the public folder
+        const response = await fetch('/quiz_questions.xml');
         const xmlText = await response.text();
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlText, "application/xml");
@@ -39,24 +43,45 @@ function QuizPage() {
 
   const totalQuestions = questions.length;
 
+  const handleQuizCompletion = async () => {
+    try {
+      console.log('Marking quiz as completed for user:', user.id); // fix
+      const response = await fetch('/api/users/quiz-completed', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${await user.getToken()}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (response.ok) {
+        console.log('Quiz marked as completed');
+        navigate('/'); // Redirect to home page after quiz completion
+      } else {
+        console.error('Failed to mark quiz as completed');
+      }
+    } catch (error) {
+      console.error('Error marking quiz as completed:', error);
+    }
+  };
+
   const handleNextQuestion = () => {
     if (currentQuestion < totalQuestions - 1) {
       setCurrentQuestion(currentQuestion + 1);
-      setSelectedAnswer(null); // Reset the selected answer for the new question
-      setSelectedAnswer(null); // Reset the selected answer for the new question
+      setSelectedAnswer(null);
+    } else {
+      handleQuizCompletion();
     }
   };
 
   const handlePreviousQuestion = () => {
     if (currentQuestion > 0) {
       setCurrentQuestion(currentQuestion - 1);
-      setSelectedAnswer(null); // Reset the selected answer for the previous question
-      setSelectedAnswer(null); // Reset the selected answer for the previous question
+      setSelectedAnswer(null);
     }
   };
 
   const handleSelectAnswer = (answer) => {
-    setSelectedAnswer(answer); // Set the selected answer
+    setSelectedAnswer(answer);
   };
 
   const progressPercentage = ((currentQuestion + 1) / totalQuestions) * 100;
@@ -98,8 +123,12 @@ function QuizPage() {
           <button className="prev-button" onClick={handlePreviousQuestion} disabled={currentQuestion === 0}>
             Previous
           </button>
-          <button className="next-button" onClick={handleNextQuestion} disabled={currentQuestion === totalQuestions - 1}>
-            Next
+          <button 
+            className="next-button" 
+            onClick={handleNextQuestion} 
+            disabled={currentQuestion === totalQuestions - 1 && !selectedAnswer}
+          >
+            {currentQuestion === totalQuestions - 1 ? 'Finish' : 'Next'}
           </button>
         </div>
       </div>
