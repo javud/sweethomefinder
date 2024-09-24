@@ -4,11 +4,10 @@ import React, { useState } from 'react';
 import '../styles/quizPage.scss'; 
 
 function QuizPage() {
-  // Sample state: 5 total questions and currently on the first question
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const totalQuestions = 5; // This can be dynamic later
+  const [selectedAnswer, setSelectedAnswer] = useState(null); // Track selected answer
+  const totalQuestions = 5;
 
-  // Sample questions (replace with real questions)
   const questions = [
     "What's your preferred pet size?",
     "Do you prefer a pet that is active or calm?",
@@ -17,21 +16,24 @@ function QuizPage() {
     "Do you have any pet allergies?"
   ];
 
-  // Function to move to the next question
   const handleNextQuestion = () => {
     if (currentQuestion < totalQuestions - 1) {
       setCurrentQuestion(currentQuestion + 1);
+      setSelectedAnswer(null); // Reset the selected answer for the new question
     }
   };
 
-  // Function to move to the previous question
   const handlePreviousQuestion = () => {
     if (currentQuestion > 0) {
       setCurrentQuestion(currentQuestion - 1);
+      setSelectedAnswer(null); // Reset the selected answer for the previous question
     }
   };
 
-  // Calculate progress
+  const handleSelectAnswer = (answer) => {
+    setSelectedAnswer(answer); // Set the selected answer
+  };
+
   const progressPercentage = ((currentQuestion + 1) / totalQuestions) * 100;
 
   return (
@@ -51,9 +53,24 @@ function QuizPage() {
 
         {/* Answer Buttons */}
         <div className="answer-buttons">
-          <button className="answer-button">Option 1</button>
-          <button className="answer-button">Option 2</button>
-          <button className="answer-button">Option 3</button>
+          <button
+            className={`answer-button ${selectedAnswer === 'Option 1' ? 'selected' : ''}`}
+            onClick={() => handleSelectAnswer('Option 1')}
+          >
+            Option 1
+          </button>
+          <button
+            className={`answer-button ${selectedAnswer === 'Option 2' ? 'selected' : ''}`}
+            onClick={() => handleSelectAnswer('Option 2')}
+          >
+            Option 2
+          </button>
+          <button
+            className={`answer-button ${selectedAnswer === 'Option 3' ? 'selected' : ''}`}
+            onClick={() => handleSelectAnswer('Option 3')}
+          >
+            Option 3
+          </button>
         </div>
 
         {/* Navigation Buttons */}
