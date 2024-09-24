@@ -1,0 +1,75 @@
+// src/pages/aboutUsPage.js
+
+@import 'global.scss'; // Import global styles
+
+.about-us-page {
+  font-family: 'Poppins', sans-serif;
+  padding: 50px 20px;
+  text-align: center;
+  background-color: white; // Using primary color from global
+
+  h1 {
+    font-size: 2.5rem;
+    color: white;
+    margin-bottom: 40px;
+  }
+
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 40px;
+    justify-items: center;
+
+    .team-member {
+      background-color: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: scale(1.05);
+      }
+
+      img {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 50%;
+        margin-bottom: 15px;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+        color: $cta-bg-color;
+      }
+    }
+  }
+}
+
+// Mobile styles
+@media (max-width: 768px) {
+  .about-us-page {
+    padding: 20px;
+
+    h1 {
+      font-size: 2rem;
+    }
+    
+    .team-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .team-member {
+      img {
+        width: 120px;
+        height: 120px;
+      }
+
+      h2 {
+        font-size: 1.3rem;
+      }
+    }
+  }
+}

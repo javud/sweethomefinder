@@ -31,7 +31,7 @@ function NavBar() {
         <ul className={`navbar-links ${isOpen ? 'show' : ''}`}>
           <li><Link to="/" onClick={toggleMenu}>Home</Link></li>
           <li><Link to="/quiz" onClick={toggleMenu}>Find Your Pet</Link></li>
-          <li><Link to="/about" onClick={toggleMenu}>About Us</Link></li>
+          <li><Link to="/about-us" onClick={toggleMenu}>About Us</Link></li>
           
           {/* Signed-out users see the SignIn button */}
           <SignedOut>

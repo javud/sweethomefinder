@@ -7,10 +7,11 @@ import NavBar from './components/navBar';
 import Footer from './components/footer';
 import LoginPage from './pages/loginPage';
 import SignUpPage from './pages/signupPage';
+import AboutUsPage from './pages/aboutUsPage'; // Import AboutUsPage
 
 function App() {
   const { isSignedIn, user } = useUser();
-  const { getToken } = useAuth();  // Destructure getToken from useAuth()
+  const { getToken } = useAuth();  
   const [hasTakenQuiz, setHasTakenQuiz] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -29,24 +30,22 @@ function App() {
 
   const registerUser = async () => {
     if (!user) return;
-  
+
     try {
-      console.log('Registering user:', user.fullName, user.primaryEmailAddress.emailAddress, user.id); // Debugging
-  
-      const token = await getToken(); // Retrieve the token
+      const token = await getToken(); 
       const response = await fetch('http://localhost:5000/api/users/register', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`, // Use the token from getToken
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           name: user.fullName,
           email: user.primaryEmailAddress.emailAddress,
-          clerkUserId: user.id,  // Pass the Clerk User ID to the backend
+          clerkUserId: user.id,
         }),
       });
-  
+
       const data = await response.json();
       console.log('Register response:', data);
     } catch (error) {
@@ -58,11 +57,10 @@ function App() {
     if (!user) return;
 
     try {
-      console.log('Checking quiz status for user:', user.id); // Debugging
-      const token = await getToken(); // Retrieve the token
+      const token = await getToken(); 
       const response = await fetch('http://localhost:5000/api/users/quiz-status', {
         headers: {
-          'Authorization': `Bearer ${token}`, // Use the token from getToken
+          'Authorization': `Bearer ${token}`,
         },
       });
       const data = await response.json();
@@ -91,6 +89,7 @@ function App() {
           <Route path="/quiz" element={
             isSignedIn ? (hasTakenQuiz ? <Navigate to="/" /> : <QuizPage />) : <Navigate to="/login" />
           } />
+          <Route path="/about-us" element={<AboutUsPage />} /> {/* Updated the path to /about-us */}
         </Routes>
         <Footer />
       </div>
