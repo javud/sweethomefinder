@@ -20,8 +20,6 @@ This is the README for our temp repo.
 
 5. node server.js
 
-**Make sure not to add any files to the virtual environment that is specifically for adding libraries and imports**
-
 ## To run the react frontend:
 
 1. cd into the sweetHomeFinder
