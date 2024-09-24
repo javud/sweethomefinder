@@ -1,27 +1,27 @@
-// src/pages/LoginPage.js
+// src/pages/signupPage.js
 
 import React from 'react';
-import { SignIn } from '@clerk/clerk-react';
+import { SignUp } from '@clerk/clerk-react';
 import '../styles/loginPage.scss'; 
 import loginBackground2 from '../assets/unsplash2.jpg';
 
-function LoginPage() {
+function SignUpPage() {
   return (
     <div className="login-page" style={{ backgroundImage: `url(${loginBackground2})` }}>
       <div className="login-container">
-        <h2>Welcome to Sweet Home Finder</h2>
+        <h2>Join Sweet Home Finder</h2>
         <div className="pet-icon">🐾</div>
 
-        {/* Clerk SignIn Component */}
-        <SignIn path="/login" routing="path" signUpUrl="/signup" />
+        {/* Clerk SignUp Component */}
+        <SignUp path="/signup" routing="path" signInUrl="/login" />
 
-        {/* Optional Sign-Up link (Clerk handles routing) */}
+        {/* Optional Login link */}
         <div className="login-options">
-          <a href="/signup">New to our shelter? Sign up</a>
+          <a href="/login">Already have an account? Log in</a>
         </div>
       </div>
     </div>
   );
 }
 
-export default LoginPage;
+export default SignUpPage;
