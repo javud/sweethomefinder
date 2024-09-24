@@ -4,7 +4,7 @@ import React from 'react';
 import { SignIn } from '@clerk/clerk-react';
 import '../styles/loginPage.scss'; 
 import loginBackground2 from '../assets/unsplash2.jpg';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 
 function LoginPage() {
   return (
