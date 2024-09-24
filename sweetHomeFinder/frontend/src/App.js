@@ -7,6 +7,7 @@ import QuizPage from './pages/quizPage';
 import NavBar from './components/navBar';
 import Footer from './components/footer';
 import LoginPage from './pages/loginPage';
+import SignupPage from './pages/signupPage';
 
 function App() {
   return (
@@ -17,10 +18,9 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/quiz" element={<QuizPage />} />
           <Route path="/login" element={<LoginPage />} />
-          
-          {/* Add more routes as needed */}
+          <Route path="/signup" element={<SignupPage />} />
         </Routes>
-        <Footer />  {/* Add Footer component here */}
+        <Footer />
       </div>
     </Router>
   );

@@ -4,6 +4,7 @@ import React from 'react';
 import '../styles/loginPage.scss';
 // import loginBackground from '../assets/loginImg.jpg';
 import loginBackground2 from '../assets/unsplash2.jpg';
+import { Link } from 'react-router-dom';
 
 function LoginPage() {
     return (
@@ -23,7 +24,7 @@ function LoginPage() {
             <button type="submit">Find Your Perfect Pet</button>
           </form>
           <div className="login-options">
-            <a href="/signup">New here? Sign up</a>
+          <Link to="/signup">New to our shelter? Sign up</Link>
           </div>
         </div>
       </div>
