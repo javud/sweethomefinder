@@ -1,46 +1,44 @@
-// src/styles/quizPage.scss
+@import 'global.scss';
 
 // Variables
-$primary-color: #2d5da0;
-$secondary-color: #ffd700;
-$hover-color: #1c3d70;
-$text-color: #333;
-$box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-$progress-bg: #ddd;
-$progress-fill: $primary-color;
-
-// Mixin for flex centering
-@mixin flex-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+$hero-text-color: white;
+$card-bg-color: white;
+$button-bg-color: $cta-bg-color;
+$button-hover-bg-color: $cta-hover-color;
+$progress-bg-color: rgba(255, 255, 255, 0.3);
+$progress-fill-color: $cta-bg-color;
+$shadow-color: rgba(0, 0, 0, 0.15);
 
 .quiz-page {
-  @include flex-center;
-  flex-direction: column;
-  // padding: 20px 20px;
   font-family: 'Poppins', sans-serif;
-  background-color: #f4f4f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
   min-height: 100vh;
+  padding: 30px 20px;
 
   // Progress Bar
   .progress-bar-container {
-    @include flex-center;
-    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
     width: 100%;
     max-width: 600px;
 
     .progress-bar {
-      background-color: $progress-bg;
+      background-color: $progress-bg-color;
       border-radius: 20px;
       overflow: hidden;
       width: 100%;
       height: 20px;
+      box-shadow: 0 2px 6px $shadow-color;
 
       .progress-bar-fill {
         height: 100%;
-        background-color: $progress-fill;
+        background-color: $progress-fill-color;
         transition: width 0.3s ease-in-out;
       }
     }
@@ -54,44 +52,50 @@ $progress-fill: $primary-color;
 
   // Question Card
   .question-card {
-    background-color: white;
-    box-shadow: $box-shadow;
-    padding: 30px 30px; 
+    background-color: $card-bg-color;
+    box-shadow: 0 4px 8px $shadow-color;
+    padding: 40px 30px;
     border-radius: 15px;
     max-width: 600px;
     width: 100%;
-    text-align: left;
+    text-align: center;
     position: relative;
 
     h2 {
-      font-size: 1.8rem;
-      color: $primary-color;
-      margin-bottom: 15px;
+      font-size: 2rem;
+      color: $cta-bg-color;
+      margin-bottom: 20px;
     }
 
     p {
       font-size: 1.2rem;
-      color: $text-color;
+      color: $hero-text-color;
       margin-bottom: 30px;
     }
 
     // Answer Buttons
     .answer-buttons {
       display: flex;
+      flex-direction: column;
       gap: 15px;
-      margin-bottom: 40px;
+      margin-bottom: 30px;
 
       .answer-button {
-        padding: 10px 20px;
-        background-color: $primary-color;
+        padding: 12px 20px;
+        background-color: $button-bg-color;
         color: white;
         border: none;
         border-radius: 8px;
         cursor: pointer;
+        font-size: 1.1rem;
         transition: background-color 0.3s ease;
 
         &:hover {
-          background-color: $hover-color;
+          background-color: $button-hover-bg-color;
+        }
+
+        &.selected {
+          background-color: $button-hover-bg-color; // Keeps the selected state highlighted
         }
       }
     }
@@ -100,27 +104,22 @@ $progress-fill: $primary-color;
     .navigation-buttons {
       display: flex;
       justify-content: space-between;
-      position: absolute;
-      bottom: 20px;
-      left: 0;
-      right: 0;
-      padding: 0 30px;
+      padding-top: 20px;
 
       .prev-button, .next-button {
         padding: 12px 30px;
-        background-color: $primary-color;
+        background-color: $button-bg-color;
         color: white;
         border: none;
         border-radius: 8px;
         font-size: 1.1rem;
         cursor: pointer;
         transition: background-color 0.3s ease;
-        position: relative;
         display: flex;
         align-items: center;
 
         &:hover {
-          background-color: $hover-color;
+          background-color: $button-hover-bg-color;
         }
       }
 

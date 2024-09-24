@@ -1,0 +1,132 @@
+<quiz>
+    <category name="General Questions">
+        <question>
+            <text>What type of pet are you most interested in?</text>
+            <options>
+                <option tag="dog">Dog</option>
+                <option tag="cat">Cat</option>
+                <option tag="no_preference">No preference</option>
+            </options>
+        </question>
+        <question>
+            <text>What size of pet would you prefer?</text>
+            <options>
+                <option tag="small">Small (e.g., Chihuahua, Persian Cat)</option>
+                <option tag="medium">Medium (e.g., Beagle, Maine Coon)</option>
+                <option tag="large">Large (e.g., Golden Retriever, Ragdoll Cat)</option>
+                <option tag="no_size_preference">No preference</option>
+            </options>
+        </question>
+        <question>
+            <text>How active are you?</text>
+            <options>
+                <option tag="high_energy">I’m very active and would like a pet to match</option>
+                <option tag="moderate_energy">I prefer moderate activity, like walks or occasional play</option>
+                <option tag="low_energy">I’m laid-back and want a calm, low-energy pet</option>
+            </options>
+        </question>
+        <question>
+            <text>Do you live in a house or apartment?</text>
+            <options>
+                <option tag="house_with_yard">House with a yard</option>
+                <option tag="apartment_friendly">Apartment</option>
+                <option tag="no_living_preference">No preference</option>
+            </options>
+        </question>
+    </category>
+    <category name="Personality and Lifestyle">
+        <question>
+            <text>How much time do you spend at home on a typical day?</text>
+            <options>
+                <option tag="home_all_day">Most of the day</option>
+                <option tag="home_few_hours">A few hours</option>
+                <option tag="rarely_home">Rarely home</option>
+            </options>
+        </question>
+        <question>
+            <text>How do you feel about pet grooming needs?</text>
+            <options>
+                <option tag="high_grooming">I’m fine with pets that need regular grooming</option>
+                <option tag="low_grooming">I prefer pets with low grooming needs</option>
+                <option tag="no_grooming_preference">No preference</option>
+            </options>
+        </question>
+        <question>
+            <text>Are you looking for a pet that is good with children?</text>
+            <options>
+                <option tag="good_with_young_children">Yes, I have young children</option>
+                <option tag="good_with_older_children">Yes, but the children are older</option>
+                <option tag="no_child_preference">Not necessary</option>
+            </options>
+        </question>
+        <question>
+            <text>Would you prefer a pet that is good with other animals?</text>
+            <options>
+                <option tag="good_with_pets">Yes, I have other pets</option>
+                <option tag="no_pet_preference">Yes, but I don’t have other pets now</option>
+                <option tag="no_pet_preference">Not important</option>
+            </options>
+        </question>
+    </category>
+    <category name="Specific Pet Preferences">
+        <question>
+            <text>How much experience do you have with pets?</text>
+            <options>
+                <option tag="first_time_owner">I’m a first-time pet owner</option>
+                <option tag="some_experience">I have some experience</option>
+                <option tag="experienced_owner">I’m very experienced</option>
+            </options>
+        </question>
+        <question>
+            <text>Do you prefer a pet that is already trained?</text>
+            <options>
+                <option tag="trained">Yes, I prefer a pet with basic training</option>
+                <option tag="needs_training">No, I’m fine with training them myself</option>
+                <option tag="no_training_preference">No preference</option>
+            </options>
+        </question>
+        <question>
+            <text>What age range of pet are you most interested in?</text>
+            <options>
+                <option tag="puppy_kitten">Puppy/Kitten</option>
+                <option tag="adult_pet">Adult</option>
+                <option tag="senior_pet">Senior</option>
+                <option tag="no_age_preference">No preference</option>
+            </options>
+        </question>
+    </category>
+    <category name="Pet Behavior">
+        <question>
+            <text>Do you want a pet that is independent, or one that craves attention?</text>
+            <options>
+                <option tag="independent">I prefer a more independent pet</option>
+                <option tag="affectionate">I want a pet that’s affectionate and loves attention</option>
+                <option tag="no_independence_preference">No preference</option>
+            </options>
+        </question>
+        <question>
+            <text>How do you feel about a pet that may have special needs or medical conditions?</text>
+            <options>
+                <option tag="special_needs_pet">I’m open to adopting a pet with special needs</option>
+                <option tag="healthy_pet">I prefer a healthy pet without ongoing medical care</option>
+                <option tag="no_health_preference">No preference</option>
+            </options>
+        </question>
+        <question>
+            <text>How much time can you dedicate to walking or playing with your pet?</text>
+            <options>
+                <option tag="over_1_hour_playtime">Over 1 hour per day</option>
+                <option tag="30_min_to_1_hour_playtime">30 minutes to 1 hour</option>
+                <option tag="less_than_30_min_playtime">Less than 30 minutes</option>
+            </options>
+        </question>
+        <question>
+            <text>Would you consider adopting a pair or bonded pets?</text>
+            <options>
+                <option tag="willing_to_adopt_pair">Yes, I would love to adopt more than one</option>
+                <option tag="prefers_single_pet">No, I prefer just one pet</option>
+                <option tag="no_pair_preference">No preference</option>
+            </options>
+        </question>
+    </category>
+</quiz>
