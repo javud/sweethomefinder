@@ -43,6 +43,7 @@ function QuizPage() {
     if (currentQuestion < totalQuestions - 1) {
       setCurrentQuestion(currentQuestion + 1);
       setSelectedAnswer(null); // Reset the selected answer for the new question
+      setSelectedAnswer(null); // Reset the selected answer for the new question
     }
   };
 
@@ -50,7 +51,12 @@ function QuizPage() {
     if (currentQuestion > 0) {
       setCurrentQuestion(currentQuestion - 1);
       setSelectedAnswer(null); // Reset the selected answer for the previous question
+      setSelectedAnswer(null); // Reset the selected answer for the previous question
     }
+  };
+
+  const handleSelectAnswer = (answer) => {
+    setSelectedAnswer(answer); // Set the selected answer
   };
 
   const handleSelectAnswer = (answer) => {
