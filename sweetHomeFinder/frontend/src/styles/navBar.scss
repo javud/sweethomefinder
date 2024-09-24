@@ -1,10 +1,10 @@
 // src/styles/navBar.scss
+
 @import 'global.scss';
 
-// Variables
 $link-color: white;
+$button-bg-color: $cta-hover-color;
 
-// Mixin for Flexbox Centering
 @mixin flex-center {
   display: flex;
   justify-content: center;
@@ -22,12 +22,6 @@ $link-color: white;
     width: 100%;
   }
 
-  .navbar-logo {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: $link-color;
-  }
-
   .navbar-logo img {
     height: 40px;
     width: auto;
@@ -37,7 +31,7 @@ $link-color: white;
     display: none; 
     cursor: pointer;
     position: relative;
-    z-index: 10;
+    z-index: 9999;
 
     .btn-line {
       width: 30px;
@@ -63,6 +57,7 @@ $link-color: white;
   .navbar-links {
     list-style: none;
     display: flex;
+    align-items: center;
     gap: 20px;
 
     li {
@@ -87,6 +82,24 @@ $link-color: white;
           width: 100%;
         }
       }
+
+      .custom-signin-btn {
+        background-color: $button-bg-color;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+          transform: scale(1.05);
+        }
+      }
     }
   }
 
@@ -98,12 +111,12 @@ $link-color: white;
 
     .menu-btn {
       cursor: pointer;
-      display: block;
+      display: block !important;
     }
 
     .navbar-links {
       position: absolute;
-      top: 76%; 
+      top: 76%;
       left: 0;
       width: 100%;
       background-color: $primary-color;
@@ -114,7 +127,7 @@ $link-color: white;
       z-index: 10;
       transform: translateY(-100%);
       transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-      opacity: 0; 
+      opacity: 0;
 
       li {
         padding: 10px 0;
@@ -124,16 +137,23 @@ $link-color: white;
           font-size: 1.2rem;
         }
       }
+
+      .custom-signin-btn {
+        width: 100%;
+        max-width: 200px;
+        text-align: center;
+        font-size: 1.2rem;
+      }
     }
 
     .navbar-links.show {
-      transform: translateY(0); 
-      opacity: 1; 
+      transform: translateY(0);
+      opacity: 1;
     }
 
     .navbar-links.hide {
       transform: translateY(-100%);
-      opacity: 1;
+      opacity: 0;
     }
   }
 }

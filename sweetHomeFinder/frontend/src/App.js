@@ -7,7 +7,7 @@ import NavBar from './components/navBar';
 import Footer from './components/footer';
 import LoginPage from './pages/loginPage';
 import SignUpPage from './pages/signupPage';
-import AboutUsPage from './pages/aboutUsPage'; // Import AboutUsPage
+import AboutUsPage from './pages/aboutUsPage';
 
 function App() {
   const { isSignedIn, user } = useUser();
@@ -89,7 +89,7 @@ function App() {
           <Route path="/quiz" element={
             isSignedIn ? (hasTakenQuiz ? <Navigate to="/" /> : <QuizPage />) : <Navigate to="/login" />
           } />
-          <Route path="/about-us" element={<AboutUsPage />} /> {/* Updated the path to /about-us */}
+          <Route path="/about-us" element={<AboutUsPage />} />
         </Routes>
         <Footer />
       </div>

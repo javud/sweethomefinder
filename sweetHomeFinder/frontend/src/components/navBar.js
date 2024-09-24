@@ -19,7 +19,7 @@ function NavBar() {
         <div className="navbar-logo">
           <img src={logo} alt="Sweet Home Finder" draggable="false" />
         </div>
-        
+
         {/* Hamburger menu icon */}
         <div className={`menu-btn ${isOpen ? 'close' : ''}`} onClick={toggleMenu}>
           <div className="btn-line"></div>
@@ -28,14 +28,18 @@ function NavBar() {
         </div>
 
         {/* Dropdown menu */}
-        <ul className={`navbar-links ${isOpen ? 'show' : ''}`}>
+        <ul className={`navbar-links ${isOpen ? 'show' : 'hide'}`}>
           <li><Link to="/" onClick={toggleMenu}>Home</Link></li>
           <li><Link to="/quiz" onClick={toggleMenu}>Find Your Pet</Link></li>
           <li><Link to="/about-us" onClick={toggleMenu}>About Us</Link></li>
           
-          {/* Signed-out users see the SignIn button */}
+          {/* Signed-out users see the custom styled SignIn button */}
           <SignedOut>
-            <li><SignInButton /></li>
+            <li>
+              <SignInButton mode="modal">
+                <button className="custom-signin-btn">Login</button>
+              </SignInButton>
+            </li>
           </SignedOut>
 
           {/* Signed-in users see their UserButton (profile management) */}
