@@ -59,10 +59,6 @@ function QuizPage() {
     setSelectedAnswer(answer); // Set the selected answer
   };
 
-  const handleSelectAnswer = (answer) => {
-    setSelectedAnswer(answer); // Set the selected answer
-  };
-
   const progressPercentage = ((currentQuestion + 1) / totalQuestions) * 100;
 
   if (loading) {
