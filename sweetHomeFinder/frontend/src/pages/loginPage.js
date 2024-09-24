@@ -9,7 +9,7 @@ function LoginPage() {
     return (
       <div className="login-page" style={{ backgroundImage: `url(${loginBackground2})` }}>
         <div className="login-container">
-          <h2>Welcome to Sweet Home Finder</h2>
+          <h2>Login to Sweet Home Finder</h2>
           <div className="pet-icon">🐾</div>
           <form className="login-form">
             <div className="input-group">
@@ -20,10 +20,10 @@ function LoginPage() {
               <label htmlFor="password">Password</label>
               <input type="password" id="password" required />
             </div>
-            <button type="submit">Find Your mf Dawg</button>
+            <button type="submit">Find Your Perfect Pet</button>
           </form>
           <div className="login-options">
-            <a href="/signup">New to our shelter? Sign up</a>
+            <a href="/signup">New here? Sign up</a>
           </div>
         </div>
       </div>

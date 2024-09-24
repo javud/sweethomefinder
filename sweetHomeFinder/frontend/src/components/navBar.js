@@ -16,7 +16,7 @@ function NavBar() {
     <nav className="navbar">
       <div className="navbar-container">
         <div className="navbar-logo">
-          <img src={logo} alt="Sweet Home Finder" draggable="false"/>
+          <Link to="/"><img src={logo} alt="Sweet Home Finder" draggable="false"/></Link>
         </div>
         {/* Hamburger menu icon */}
         <div className={`menu-btn ${isOpen ? 'close' : ''}`} onClick={toggleMenu}>
