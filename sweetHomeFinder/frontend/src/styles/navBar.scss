@@ -1,7 +1,7 @@
 // src/styles/navBar.scss
+@import 'global.scss';
 
 // Variables
-$primary-color: #5b00bc;
 $link-color: white;
 
 // Mixin for Flexbox Centering
@@ -97,6 +97,7 @@ $link-color: white;
     }
 
     .menu-btn {
+      cursor: pointer;
       display: block;
     }
 

@@ -17,7 +17,11 @@ function NavBar() {
     <nav className="navbar">
       <div className="navbar-container">
         <div className="navbar-logo">
+<<<<<<< HEAD
           <img src={logo} alt="Sweet Home Finder" draggable="false" />
+=======
+          <Link to="/"><img src={logo} alt="Sweet Home Finder" draggable="false"/></Link>
+>>>>>>> 1bd86e68acc1d4187f6cf66d60c64b3a0bc92317
         </div>
         
         {/* Hamburger menu icon */}

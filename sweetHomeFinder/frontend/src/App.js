@@ -8,7 +8,11 @@ import QuizPage from './pages/quizPage';
 import NavBar from './components/navBar';
 import Footer from './components/footer';
 import LoginPage from './pages/loginPage';
+<<<<<<< HEAD
 import SignUpPage from './pages/signupPage';
+=======
+import SignupPage from './pages/signupPage';
+>>>>>>> 1bd86e68acc1d4187f6cf66d60c64b3a0bc92317
 
 function App() {
   return (
@@ -19,6 +23,7 @@ function App() {
           {/* Public Routes */}
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
+<<<<<<< HEAD
           <Route path="/signup" element={<SignUpPage />} />
 
           {/* Protected Route: Only signed-in users can access the Quiz */}
@@ -42,6 +47,11 @@ function App() {
           />
         </Routes>
         <Footer /> {/* Footer will be displayed on all pages */}
+=======
+          <Route path="/signup" element={<SignupPage />} />
+        </Routes>
+        <Footer />
+>>>>>>> 1bd86e68acc1d4187f6cf66d60c64b3a0bc92317
       </div>
     </Router>
   );

@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 // src/styles/signupPage.scss
 
 .login-page {
+=======
+.signup-page {
+>>>>>>> 1bd86e68acc1d4187f6cf66d60c64b3a0bc92317
     display: flex;
     justify-content: center;
     align-items: center;
@@ -10,14 +14,24 @@
     background-position: center;
     background-repeat: no-repeat;
   
+<<<<<<< HEAD
     .login-container {
+=======
+    .signup-container {
+>>>>>>> 1bd86e68acc1d4187f6cf66d60c64b3a0bc92317
       background-color: rgba(255, 255, 255, 0.764);
       backdrop-filter: blur(5px);
       padding: 2rem;
       border-radius: 50px;
+<<<<<<< HEAD
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       text-align: center;
       width: 400px; /* Slightly larger to fit Clerk components */
+=======
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 300px;
+>>>>>>> 1bd86e68acc1d4187f6cf66d60c64b3a0bc92317
   
       h2 {
         color: #4a4a4a;
@@ -29,15 +43,33 @@
         margin-bottom: 1rem;
       }
   
+<<<<<<< HEAD
       /* Clerk SignUp Component Styling */
       .cl-sign-up {
         .cl-sign-up-form {
+=======
+      .signup-form {
+        display: flex;
+        flex-direction: column;
+  
+        .input-group {
+          margin-bottom: 1rem;
+          text-align: left;
+  
+          label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #4a4a4a;
+          }
+  
+>>>>>>> 1bd86e68acc1d4187f6cf66d60c64b3a0bc92317
           input {
             width: 100%;
             padding: 0.5rem;
             border: 1px solid #ddd;
             border-radius: 4px;
           }
+<<<<<<< HEAD
   
           button {
             background-color: #4CAF50;
@@ -51,11 +83,30 @@
             &:hover {
               background-color: #45a049;
             }
+=======
+        }
+  
+        button {
+          background-color: #4CAF50;
+          color: white;
+          border: none;
+          padding: 0.75rem;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 1rem;
+  
+          &:hover {
+            background-color: #45a049;
+>>>>>>> 1bd86e68acc1d4187f6cf66d60c64b3a0bc92317
           }
         }
       }
   
+<<<<<<< HEAD
       .login-options {
+=======
+      .signup-options {
+>>>>>>> 1bd86e68acc1d4187f6cf66d60c64b3a0bc92317
         margin-top: 1rem;
   
         a {
