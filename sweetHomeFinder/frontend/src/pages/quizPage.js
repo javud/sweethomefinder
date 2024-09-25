@@ -3,13 +3,13 @@ import { useUser } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/quizPage.scss';
 
-function QuizPage() {
+function QuizPage({ onQuizComplete }) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [answers, setAnswers] = useState({});
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isAnimating, setIsAnimating] = useState(false); // Track animation state
+  const [isAnimating, setIsAnimating] = useState(false);
   const { user } = useUser();
   const navigate = useNavigate();
 
@@ -47,43 +47,39 @@ function QuizPage() {
     setSelectedAnswer(answers[currentQuestion] || null);
   }, [currentQuestion, answers]);
 
-  const totalQuestions = questions.length;
-
-  const getProgress = () => {
-    const progress = Math.round((currentQuestion / (totalQuestions - 1)) * 100);
-    if(progress == 100) {
-      return "Done!";
-    } else {
-      return progress + "%";
-    }
-  }
-
   const handleQuizCompletion = async () => {
+    console.log('Handling quiz completion...');
     try {
-      console.log('test');
-      console.log('Marking quiz as completed for user:', user.id); // fix
-      const response = await fetch('/api/users/quiz-completed', {
+      const response = await fetch('http://localhost:5000/api/users/save-quiz-answers', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${await user.getToken()}`,
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ 
+          answers,
+          clerkUserId: user.id
+        }),
       });
+
       if (response.ok) {
-        console.log('Quiz marked as completed');
-        navigate('/'); // Redirect to home page after quiz completion
+        console.log('Quiz answers saved and marked as completed');
+        if (onQuizComplete) {
+          onQuizComplete();
+        }
+        navigate('/');
       } else {
-        console.error('Failed to mark quiz as completed');
+        const errorData = await response.json();
+        console.error('Failed to save quiz answers:', errorData);
       }
     } catch (error) {
-      console.error('Error marking quiz as completed:', error);
+      console.error('Error saving quiz answers:', error);
     }
   };
 
   const handleNextQuestion = () => {
     setIsAnimating(true);
     setTimeout(() => {
-      if (currentQuestion < totalQuestions - 1) {
+      if (currentQuestion < questions.length - 1) {
         setCurrentQuestion(currentQuestion + 1);
       } else {
         handleQuizCompletion();
@@ -105,20 +101,17 @@ function QuizPage() {
   const handleSelectAnswer = (answer) => {
     setSelectedAnswer(answer);
     setAnswers(prev => ({ ...prev, [currentQuestion]: answer }));
-    setTimeout(() => {
-      handleNextQuestion();
-    }, 200);
   };
-
-  const progressPercentage = ((currentQuestion + 1) / totalQuestions) * 100;
 
   if (loading) {
     return <div>Loading...</div>;
   }
 
-  if (totalQuestions === 0) {
+  if (questions.length === 0) {
     return <div>No questions available</div>;
   }
+
+  const progressPercentage = ((currentQuestion + 1) / questions.length) * 100;
 
   return (
     <div className="quiz-page">
@@ -126,11 +119,11 @@ function QuizPage() {
         <div className="progress-bar">
           <div className="progress-bar-fill" style={{ width: `${progressPercentage}%` }}></div>
         </div>
-        <span className="questions-left">{getProgress()}</span>
+        <span className="questions-left">{`${currentQuestion + 1}/${questions.length}`}</span>
       </div>
 
       <div className={`question-card ${isAnimating ? 'fade' : ''}`}>
-        <h2>Question {currentQuestion + 1}<span class="total">/{totalQuestions}</span></h2>
+        <h2>Question {currentQuestion + 1}<span className="total">/{questions.length}</span></h2>
         <p>{questions[currentQuestion].text}</p>
 
         <div className="answer-buttons">
@@ -151,10 +144,10 @@ function QuizPage() {
           </button>
           <button 
             className="next-button" 
-            onClick={handleNextQuestion} 
-            disabled={currentQuestion === totalQuestions - 1 && !selectedAnswer}
+            onClick={currentQuestion === questions.length - 1 ? handleQuizCompletion : handleNextQuestion}
+            disabled={!selectedAnswer}
           >
-            {currentQuestion === totalQuestions - 1 ? 'Finish' : 'Next'}
+            {currentQuestion === questions.length - 1 ? 'Finish' : 'Next'}
           </button>
         </div>
       </div>

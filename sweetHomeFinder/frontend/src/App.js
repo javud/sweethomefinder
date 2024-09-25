@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import { useUser, useAuth } from '@clerk/clerk-react'; // Import useAuth from Clerk
+import { useUser, useAuth } from '@clerk/clerk-react';
 import HomePage from './pages/homePage';
 import QuizPage from './pages/quizPage';
 import NavBar from './components/navBar';
@@ -21,6 +21,7 @@ function App() {
         await registerUser();
         await checkQuizStatus();
       } else {
+        setHasTakenQuiz(null);
         setIsLoading(false);
       }
     };
@@ -57,16 +58,23 @@ function App() {
     if (!user) return;
 
     try {
-      const token = await getToken(); 
-      const response = await fetch('http://localhost:5000/api/users/quiz-status', {
+      const token = await getToken();
+      const response = await fetch(`http://localhost:5000/api/users/quiz-status?clerkUserId=${user.id}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch quiz status');
+      }
+
       const data = await response.json();
-      setHasTakenQuiz(data.hasTakenQuiz);
+      console.log('Quiz status response:', data); // Add this log
+      setHasTakenQuiz(data.hasTakenQuiz === 1);
     } catch (error) {
       console.error('Error checking quiz status:', error);
+      setHasTakenQuiz(false); // Assume quiz not taken if there's an error
     } finally {
       setIsLoading(false);
     }
@@ -87,7 +95,11 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/quiz" element={
-            isSignedIn ? (hasTakenQuiz ? <Navigate to="/" /> : <QuizPage />) : <Navigate to="/login" />
+            isSignedIn 
+              ? (hasTakenQuiz 
+                  ? <Navigate to="/" /> 
+                  : <QuizPage onQuizComplete={() => setHasTakenQuiz(true)} />)
+              : <Navigate to="/login" />
           } />
           <Route path="/about-us" element={<AboutUsPage />} />
         </Routes>

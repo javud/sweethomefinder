@@ -1,4 +1,3 @@
-// routes/users.js
 const express = require('express');
 const router = express.Router();
 const sql = require('mssql');
@@ -11,8 +10,7 @@ const { ClerkExpressRequireAuth } = require('@clerk/clerk-sdk-node');
 // @desc    Register a new user in our database
 router.post('/register', async (req, res) => {
   try {
-    // Retrieve Clerk User ID from req.body (sent from frontend)
-    const clerkUserId = req.body.clerkUserId;  // No need for req.auth
+    const clerkUserId = req.body.clerkUserId;
 
     if (!clerkUserId) {
       return res.status(400).json({ message: 'Clerk User ID is required' });
@@ -20,9 +18,8 @@ router.post('/register', async (req, res) => {
 
     const { name, email } = req.body;
 
-    console.log('Registering user with Clerk ID:', clerkUserId); // Debugging
+    console.log('Registering user with Clerk ID:', clerkUserId);
 
-    // Check if user already exists
     const userCheck = await sql.query`
       SELECT adopter_id FROM dbo.Adopters WHERE clerk_user_id = ${clerkUserId}
     `;
@@ -31,7 +28,6 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'User already registered' });
     }
 
-    // Insert new user into the database
     await sql.query`
       INSERT INTO dbo.Adopters (name, email, clerk_user_id, has_taken_quiz)
       VALUES (${name}, ${email}, ${clerkUserId}, 0)
@@ -41,7 +37,7 @@ router.post('/register', async (req, res) => {
     res.status(201).json({ message: 'User registered successfully' });
   } catch (err) {
     console.error('Error registering user:', err);
-    res.status(500).send('Server error');
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 
@@ -49,7 +45,11 @@ router.post('/register', async (req, res) => {
 // @desc    Get user's quiz status
 router.get('/quiz-status', async (req, res) => {
   try {
-    const clerkUserId = req.auth.userId;
+    const clerkUserId = req.query.clerkUserId;
+    if (!clerkUserId) {
+      return res.status(400).json({ message: 'Clerk User ID is required' });
+    }
+
     const result = await sql.query`
       SELECT has_taken_quiz FROM dbo.Adopters
       WHERE clerk_user_id = ${clerkUserId}
@@ -59,31 +59,67 @@ router.get('/quiz-status', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    console.log('Quiz status fetched successfully for Clerk ID:', clerkUserId);
+    const hasTakenQuiz = result.recordset[0].has_taken_quiz;
+    console.log('Quiz status for Clerk ID:', clerkUserId, 'is:', hasTakenQuiz);
     
-    res.json({ hasTakenQuiz: result.recordset[0].has_taken_quiz });
+    res.json({ hasTakenQuiz: hasTakenQuiz });
   } catch (err) {
     console.error('Error fetching quiz status:', err);
-    res.status(500).send('Server error');
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 
-// @route   POST /api/users/quiz-completed
-// @desc    Mark user's quiz as completed
-router.post('/quiz-completed', async (req, res) => {
+// @route   POST /api/users/save-quiz-answers
+// @desc    Save quiz answers and mark quiz as completed
+router.post('/save-quiz-answers', async (req, res) => {
   try {
-    const clerkUserId = req.auth.userId;
-    await sql.query`
-      UPDATE dbo.Adopters
-      SET has_taken_quiz = 1
-      WHERE clerk_user_id = ${clerkUserId}
+    const { answers, clerkUserId } = req.body;
+
+    if (!clerkUserId) {
+      return res.status(400).json({ message: 'Clerk User ID is required' });
+    }
+
+    const userCheck = await sql.query`
+      SELECT has_taken_quiz FROM dbo.Adopters WHERE clerk_user_id = ${clerkUserId}
     `;
 
-    console.log('Quiz marked as completed for Clerk ID:', clerkUserId);
-    res.json({ message: 'Quiz marked as completed' });
+    if (userCheck.recordset.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (userCheck.recordset[0].has_taken_quiz === 1) {
+      return res.status(400).json({ message: 'User has already taken the quiz' });
+    }
+
+    const transaction = new sql.Transaction();
+    await transaction.begin();
+
+    try {
+      for (const [question, answer] of Object.entries(answers)) {
+        await transaction.request().query`
+          INSERT INTO dbo.QuizAnswers (clerk_user_id, question, answer)
+          VALUES (${clerkUserId}, ${question}, ${answer})
+        `;
+      }
+
+      await transaction.request().query`
+        UPDATE dbo.Adopters
+        SET has_taken_quiz = 1
+        WHERE clerk_user_id = ${clerkUserId}
+      `;
+
+      await transaction.commit();
+
+      console.log('Quiz answers saved and status updated for Clerk ID:', clerkUserId);
+      res.json({ message: 'Quiz answers saved and status updated successfully' });
+    } catch (error) {
+      await transaction.rollback();
+      console.error('Transaction error:', error);
+      res.status(500).json({ message: 'Error saving quiz answers', error: error.message });
+    }
   } catch (err) {
-    console.error('Error marking quiz as completed:', err);
-    res.status(500).send('Server error');
+    console.error('Error saving quiz answers:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 
