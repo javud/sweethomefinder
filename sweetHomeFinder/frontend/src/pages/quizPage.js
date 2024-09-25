@@ -6,8 +6,10 @@ import '../styles/quizPage.scss';
 function QuizPage() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [answers, setAnswers] = useState({});
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isAnimating, setIsAnimating] = useState(false); // Track animation state
   const { user } = useUser();
   const navigate = useNavigate();
 
@@ -41,10 +43,24 @@ function QuizPage() {
     loadQuizData();
   }, []);
 
+  useEffect(() => {
+    setSelectedAnswer(answers[currentQuestion] || null);
+  }, [currentQuestion, answers]);
+
   const totalQuestions = questions.length;
+
+  const getProgress = () => {
+    const progress = Math.round((currentQuestion / (totalQuestions - 1)) * 100);
+    if(progress == 100) {
+      return "Done!";
+    } else {
+      return progress + "%";
+    }
+  }
 
   const handleQuizCompletion = async () => {
     try {
+      console.log('test');
       console.log('Marking quiz as completed for user:', user.id); // fix
       const response = await fetch('/api/users/quiz-completed', {
         method: 'POST',
@@ -65,23 +81,33 @@ function QuizPage() {
   };
 
   const handleNextQuestion = () => {
-    if (currentQuestion < totalQuestions - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-      setSelectedAnswer(null);
-    } else {
-      handleQuizCompletion();
-    }
+    setIsAnimating(true);
+    setTimeout(() => {
+      if (currentQuestion < totalQuestions - 1) {
+        setCurrentQuestion(currentQuestion + 1);
+      } else {
+        handleQuizCompletion();
+      }
+      setIsAnimating(false);
+    }, 300);
   };
 
   const handlePreviousQuestion = () => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion(currentQuestion - 1);
-      setSelectedAnswer(null);
-    }
+    setIsAnimating(true);
+    setTimeout(() => {
+      if (currentQuestion > 0) {
+        setCurrentQuestion(currentQuestion - 1);
+      }
+      setIsAnimating(false);
+    }, 300);
   };
 
   const handleSelectAnswer = (answer) => {
     setSelectedAnswer(answer);
+    setAnswers(prev => ({ ...prev, [currentQuestion]: answer }));
+    setTimeout(() => {
+      handleNextQuestion();
+    }, 200);
   };
 
   const progressPercentage = ((currentQuestion + 1) / totalQuestions) * 100;
@@ -100,11 +126,11 @@ function QuizPage() {
         <div className="progress-bar">
           <div className="progress-bar-fill" style={{ width: `${progressPercentage}%` }}></div>
         </div>
-        <span className="questions-left">{totalQuestions - (currentQuestion + 1)} Questions Left</span>
+        <span className="questions-left">{getProgress()}</span>
       </div>
 
-      <div className="question-card">
-        <h2>Question {currentQuestion + 1}</h2>
+      <div className={`question-card ${isAnimating ? 'fade' : ''}`}>
+        <h2>Question {currentQuestion + 1}<span class="total">/{totalQuestions}</span></h2>
         <p>{questions[currentQuestion].text}</p>
 
         <div className="answer-buttons">
