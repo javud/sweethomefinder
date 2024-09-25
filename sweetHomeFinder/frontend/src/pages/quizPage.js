@@ -101,6 +101,9 @@ function QuizPage({ onQuizComplete }) {
   const handleSelectAnswer = (answer) => {
     setSelectedAnswer(answer);
     setAnswers(prev => ({ ...prev, [currentQuestion]: answer }));
+    setTimeout(() => {
+      handleNextQuestion();
+    }, 150);
   };
 
   if (loading) {
@@ -111,6 +114,15 @@ function QuizPage({ onQuizComplete }) {
     return <div>No questions available</div>;
   }
 
+  const getProgress = () => {
+    const progress = Math.round((currentQuestion / (questions.length - 1)) * 100);
+    if(progress === 100) {
+      return "Done!";
+    } else {
+      return progress + "%";
+    }
+  }
+
   const progressPercentage = ((currentQuestion + 1) / questions.length) * 100;
 
   return (
@@ -119,7 +131,7 @@ function QuizPage({ onQuizComplete }) {
         <div className="progress-bar">
           <div className="progress-bar-fill" style={{ width: `${progressPercentage}%` }}></div>
         </div>
-        <span className="questions-left">{`${currentQuestion + 1}/${questions.length}`}</span>
+        <span className="questions-left">{`${getProgress()}`}</span>
       </div>
 
       <div className={`question-card ${isAnimating ? 'fade' : ''}`}>
