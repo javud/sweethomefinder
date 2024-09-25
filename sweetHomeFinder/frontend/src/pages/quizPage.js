@@ -50,7 +50,7 @@ function QuizPage({ onQuizComplete }) {
   const handleQuizCompletion = async () => {
     console.log('Handling quiz completion...');
     try {
-      const response = await fetch('http://localhost:5000/api/users/save-quiz-answers', {
+      const response = await fetch('http://localhost:5001/api/users/save-quiz-answers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

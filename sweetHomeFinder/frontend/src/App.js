@@ -34,7 +34,7 @@ function App() {
 
     try {
       const token = await getToken(); 
-      const response = await fetch('http://localhost:5000/api/users/register', {
+      const response = await fetch('http://localhost:5001/api/users/register', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -59,7 +59,7 @@ function App() {
 
     try {
       const token = await getToken();
-      const response = await fetch(`http://localhost:5000/api/users/quiz-status?clerkUserId=${user.id}`, {
+      const response = await fetch(`http://localhost:5001/api/users/quiz-status?clerkUserId=${user.id}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
