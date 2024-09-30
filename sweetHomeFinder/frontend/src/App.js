@@ -70,8 +70,8 @@ function App() {
       }
 
       const data = await response.json();
-      console.log('Quiz status response:', data); // Add this log
-      setHasTakenQuiz(data.hasTakenQuiz === 1);
+      console.log('Quiz status response:', data);
+      setHasTakenQuiz(data.hasTakenQuiz);
     } catch (error) {
       console.error('Error checking quiz status:', error);
       setHasTakenQuiz(false); // Assume quiz not taken if there's an error

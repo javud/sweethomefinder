@@ -59,7 +59,7 @@ router.get('/quiz-status', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const hasTakenQuiz = result.recordset[0].has_taken_quiz;
+    const hasTakenQuiz = result.recordset[0].has_taken_quiz === 1;
     console.log('Quiz status for Clerk ID:', clerkUserId, 'is:', hasTakenQuiz);
     
     res.json({ hasTakenQuiz: hasTakenQuiz });
