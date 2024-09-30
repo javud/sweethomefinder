@@ -59,7 +59,12 @@ router.get('/quiz-status', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const hasTakenQuiz = result.recordset[0].has_taken_quiz === 1;
+    const dbValue = result.recordset[0].has_taken_quiz;
+    console.log('Raw database value for has_taken_quiz:', dbValue);
+
+    const hasTakenQuiz = dbValue === 1 || dbValue === true;
+    console.log('Interpreted hasTakenQuiz value:', hasTakenQuiz);
+
     console.log('Quiz status for Clerk ID:', clerkUserId, 'is:', hasTakenQuiz);
     
     res.json({ hasTakenQuiz: hasTakenQuiz });
