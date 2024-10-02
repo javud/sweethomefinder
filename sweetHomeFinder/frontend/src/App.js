@@ -75,7 +75,7 @@ function App() {
       setHasTakenQuiz(data.hasTakenQuiz);
     } catch (error) {
       console.error('Error checking quiz status:', error);
-      setHasTakenQuiz(false); // Assume quiz not taken if there's an error
+      setHasTakenQuiz(false); 
     } finally {
       setIsLoading(false);
     }
@@ -90,11 +90,12 @@ function App() {
       <div className="App">
         <NavBar />
         <Routes>
+          {}
           <Route path="/" element={
-            isSignedIn && hasTakenQuiz === false ? <Navigate to="/quiz" /> : <PetsPage/>
+            !isSignedIn ? <HomePage /> : (hasTakenQuiz === false ? <Navigate to="/quiz" /> : <PetsPage />)
           } />
+          
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/pets" element={<PetsPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/quiz" element={
             isSignedIn 
