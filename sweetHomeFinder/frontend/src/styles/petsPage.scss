@@ -1,0 +1,15 @@
+// src/pages/petsPage.js
+
+@import 'global.scss'; // Import global styles
+
+.title {
+    color: rgb(187, 0, 255);
+}
+
+.pets-page {
+    font-family: 'Poppins', sans-serif;
+    background-color: white;
+    height: 76vh;
+    text-align: center;
+    padding: 10px;
+}

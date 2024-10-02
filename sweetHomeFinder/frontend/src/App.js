@@ -8,6 +8,7 @@ import Footer from './components/footer';
 import LoginPage from './pages/loginPage';
 import SignUpPage from './pages/signupPage';
 import AboutUsPage from './pages/aboutUsPage';
+import PetsPage from './pages/petsPage';
 
 function App() {
   const { isSignedIn, user } = useUser();
@@ -90,9 +91,10 @@ function App() {
         <NavBar />
         <Routes>
           <Route path="/" element={
-            isSignedIn && hasTakenQuiz === false ? <Navigate to="/quiz" /> : <HomePage />
+            isSignedIn && hasTakenQuiz === false ? <Navigate to="/quiz" /> : <PetsPage/>
           } />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/pets" element={<PetsPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/quiz" element={
             isSignedIn 
