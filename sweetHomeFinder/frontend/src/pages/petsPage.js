@@ -56,7 +56,7 @@ function PetsPage() {
   
     return (
       <div className="pets-page">
-        <h1>Your Top 5 Matches</h1>
+        <h1 className="title">Your Top 5 Matches</h1>
         {matchedPets.length === 0 ? (
           <p>No matching pets found. Try adjusting your preferences in the quiz.</p>
         ) : (
@@ -65,7 +65,7 @@ function PetsPage() {
               <div key={pet.pet_id} className="pet-card">
                 <h2>{pet.name}</h2>
                 <p>Breed: {pet.breed}</p>
-                <p>Age: {pet.age} years</p>
+                <p>Age: {pet.age} years old</p>
                 <p>Size: {pet.size}</p>
                 <p>Energy Level: {pet.energy_level}</p>
                 <p>Living Environment: {pet.living_environment}</p>
