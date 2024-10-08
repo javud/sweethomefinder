@@ -1,3 +1,5 @@
+// src/components/navBar.js
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -7,6 +9,7 @@ import {
   UserButton,
 } from "@clerk/clerk-react";
 import logo from "../assets/logo-no-background.png";
+import Search from "./Search"; // Import the Search component
 import "../styles/navBar.scss";
 
 function NavBar() {
@@ -53,14 +56,7 @@ function NavBar() {
 
           {/* Search Button */}
           <li>
-            <button className="search-button">
-              <input
-                type="text"
-                placeholder="Search"
-                className="search-input"
-              />
-              <span className="search-icon">🔍</span>
-            </button>
+            <Search /> {/* Add the Search component here */}
           </li>
 
           {/* Signed-out users see the custom styled SignIn button */}

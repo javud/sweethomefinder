@@ -1,0 +1,36 @@
+// src/styles/search.scss
+.search-button {
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 0;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .search-input {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 16px;
+    outline: none;
+    padding-left: 8px;
+    width: 0;
+    transition: width 0.3s ease;
+    opacity: 0;
+  }
+  
+  .search-button:hover .search-input {
+    width: 100px; /* Expand width on hover */
+    opacity: 1;
+    border-bottom: 1px solid white; /* Optional underline */
+  }
+  
+  .search-icon {
+    color: white;
+    font-size: 16px;
+    margin-left: 5px;
+  }
+  
