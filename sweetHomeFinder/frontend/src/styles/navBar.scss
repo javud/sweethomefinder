@@ -157,3 +157,39 @@ $button-bg-color: $cta-hover-color;
     }
   }
 }
+
+.search-button {
+  display: flex;
+  align-items: center;
+  background: transparent; /* Match the background with the navbar */
+  border: none;
+  color: white; /* Match link color */
+  padding: 0;
+  font-size: 16px; /* Match link font size */
+  cursor: pointer;
+}
+
+.search-input {
+  background: transparent;
+  border: none;
+  color: white; /* Same as other links */
+  font-size: 16px;
+  outline: none;
+  padding-left: 8px;
+  width: 0;
+  transition: width 0.3s ease;
+  opacity: 0;
+}
+
+.search-button:hover .search-input {
+  width: 100px; /* Expand width on hover */
+  opacity: 1;
+  border-bottom: 1px solid white; /* Optional underline */
+}
+
+.search-icon {
+  color: white; /* Match with link color */
+  font-size: 16px;
+  margin-left: 5px;
+}
+
