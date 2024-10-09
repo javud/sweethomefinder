@@ -17,14 +17,21 @@ const config = {
   },
 };
 
+// Global variable for the database connection
+let pool = null;
+
 // Connect to Azure SQL database
 const connectDB = async () => {
-  try {
-    await sql.connect(config);
-    console.log('Connected to the database!');
-  } catch (err) {
-    console.error('Database connection failed: ', err);
+  if (!pool) { // Only connect if there is no existing connection
+    try {
+      pool = await sql.connect(config);
+      console.log('Connected to the database!');
+    } catch (err) {
+      console.error('Database connection failed: ', err);
+      throw err;
+    }
   }
+  return pool; // Return the existing connection if already connected
 };
 
 module.exports = connectDB;
