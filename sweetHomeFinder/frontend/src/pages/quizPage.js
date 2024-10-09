@@ -20,9 +20,9 @@ function QuizPage({ onQuizComplete }) {
         const xmlText = await response.text();
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlText, "application/xml");
-        
+
         const categories = Array.from(xmlDoc.getElementsByTagName('category'));
-        const quizQuestions = categories.flatMap(category => 
+        const quizQuestions = categories.flatMap(category =>
           Array.from(category.getElementsByTagName('question')).map(q => ({
             text: q.getElementsByTagName('text')[0].textContent,
             options: Array.from(q.getElementsByTagName('option')).map(option => ({
@@ -48,25 +48,24 @@ function QuizPage({ onQuizComplete }) {
   }, [currentQuestion, answers]);
 
   const handleQuizCompletion = async () => {
-    console.log('Handling quiz completion...');
     try {
       const response = await fetch('http://localhost:5001/api/users/save-quiz-answers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           answers,
           clerkUserId: user.id
         }),
       });
 
       if (response.ok) {
-        console.log('Quiz answers saved and marked as completed');
+        console.log('Quiz completed and response OK');
         if (onQuizComplete) {
           onQuizComplete();
         }
-        navigate('/');
+        navigate('/pets'); // Redirect to the pets page
       } else {
         const errorData = await response.json();
         console.error('Failed to save quiz answers:', errorData);
@@ -116,7 +115,7 @@ function QuizPage({ onQuizComplete }) {
 
   const getProgress = () => {
     const progress = Math.round((currentQuestion / (questions.length - 1)) * 100);
-    if(progress === 100) {
+    if (progress === 100) {
       return "Done!";
     } else {
       return progress + "%";
@@ -154,8 +153,8 @@ function QuizPage({ onQuizComplete }) {
           <button className="prev-button" onClick={handlePreviousQuestion} disabled={currentQuestion === 0}>
             Previous
           </button>
-          <button 
-            className="next-button" 
+          <button
+            className="next-button"
             onClick={currentQuestion === questions.length - 1 ? handleQuizCompletion : handleNextQuestion}
             disabled={!selectedAnswer}
           >
