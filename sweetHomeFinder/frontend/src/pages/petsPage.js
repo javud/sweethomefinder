@@ -8,6 +8,7 @@ function PetsPage() {
     const [matchedPets, setMatchedPets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const blankImg = 'https://i.pinimg.com/originals/22/1c/20/221c2021c91d60b1eb13ea676460a92c.png';
   
     useEffect(() => {
       if (isLoaded && isSignedIn) {
@@ -44,6 +45,20 @@ function PetsPage() {
       return <div className="pets-page">Loading...</div>;
     }
   
+    function getMatchClass(match_score) {
+      if(match_score >= 80) {
+        return "great";
+      }
+      if(match_score >= 60) {
+        return "good";
+      }
+      if(match_score >= 40) {
+        return "poor";
+      }
+      if(match_score <= 40) {
+        return "bad";
+      }
+    }
     
   
     if (error) {
@@ -56,21 +71,25 @@ function PetsPage() {
   
     return (
       <div className="pets-page">
-        <h1 className="title">Your Top 5 Matches</h1>
+        <h1 className="title">🏅Your Top 5 Matches🏅</h1>
+        <h2 className="allPets">View all pets</h2>
         {matchedPets.length === 0 ? (
           <p>No matching pets found. Try adjusting your preferences in the quiz.</p>
         ) : (
           <div className="pet-grid">
             {matchedPets.map((pet) => (
               <div key={pet.pet_id} className="pet-card">
-                <h2>{pet.name}</h2>
-                <p>Breed: {pet.breed}</p>
-                <p>Age: {pet.age} years old</p>
-                <p>Size: {pet.size}</p>
-                <p>Energy Level: {pet.energy_level}</p>
-                <p>Living Environment: {pet.living_environment}</p>
-                <p>Type: {pet.type}</p>
-                <p>Match Score: {pet.match_score}%</p>
+                <div className="pet-img">
+                  <img src={pet.image1 && pet.image1.length > 0 ? pet.image1 : blankImg}/>
+                  <h2 className="pet-name">{pet.name}</h2>
+                </div>
+                <div className = "pet-desc">
+                  <p>{pet.breed}</p>
+                  <p>{pet.age} {pet.type}</p>
+                  <p>{pet.size}</p>
+                  <p>{pet.energy_level.replaceAll("_"," ")}</p>
+                  <span className={getMatchClass(pet.match_score)}><p>{pet.match_score}% match</p></span>
+                </div>
               </div>
             ))}
           </div>

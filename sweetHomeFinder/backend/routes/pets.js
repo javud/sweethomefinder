@@ -68,7 +68,7 @@ router.get('/matched', async (req, res) => {
 
     // Construct the SQL query with scoring
     const query = `
-      SELECT TOP 5 pet_id, name, breed, age, size, energy_level, living_environment, type,
+      SELECT TOP 5 pet_id, name, breed, age, size, energy_level, living_environment, type, image1,
         (CASE WHEN type = @p0 THEN 20 ELSE 0 END +
          CASE WHEN size = @p1 THEN 20 ELSE 0 END +
          CASE WHEN energy_level = @p2 THEN 20 ELSE 0 END +
