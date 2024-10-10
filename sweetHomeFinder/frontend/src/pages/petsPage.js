@@ -138,23 +138,26 @@ function PetsPage() {
                     )}
                 </div>
                 {viewingAllPets && (
-                    <div className="filters">
-                        <h3>Filters</h3>
-                        {Object.entries(filterOptions).map(([category, options]) => (
-                            <div key={category} className="filter-category">
-                                <h4>{category.replace('_', ' ')}</h4>
-                                {options.map(option => (
-                                    <label key={option}>
-                                        <input
-                                            type="checkbox"
-                                            checked={filters[category].includes(option)}
-                                            onChange={() => handleFilterChange(category, option)}
-                                        />
-                                        {option.replace('_', ' ')}
-                                    </label>
-                                ))}
-                            </div>
-                        ))}
+                    <div className="filters-container">
+                        <div className="peeking-pets"></div>
+                        <div className="filters">
+                            <h3>Filters</h3>
+                            {Object.entries(filterOptions).map(([category, options]) => (
+                                <div key={category} className="filter-category">
+                                    <h4>{category.replace('_', ' ')}</h4>
+                                    {options.map(option => (
+                                        <label key={option}>
+                                            <input
+                                                type="checkbox"
+                                                checked={filters[category].includes(option)}
+                                                onChange={() => handleFilterChange(category, option)}
+                                            />
+                                            {option.replace('_', ' ')}
+                                        </label>
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
             </div>
