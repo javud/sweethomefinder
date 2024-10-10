@@ -171,6 +171,21 @@ function mapAgeRange(answer) {
   }
 }
 
+router.get('/all', async (req, res) => {
+  try {
+    const result = await sql.query`
+      SELECT pet_id, name, breed, age, size, energy_level, living_environment, type, image1
+      FROM dbo.Pets
+      WHERE is_available = 1
+      ORDER BY pet_id
+    `;
+    res.json(result.recordset);
+  } catch (err) {
+    console.error('Error fetching all pets:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 module.exports = router;
 
 module.exports = router;
