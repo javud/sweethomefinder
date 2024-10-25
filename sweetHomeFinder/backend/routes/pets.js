@@ -1,14 +1,24 @@
 // routes/pets.js
 const express = require('express');
 const router = express.Router();
-const sql = require('mssql');
+const connectDB = require('../config/db');
+
+// Middleware to connect to the database
+router.use(async (req, res, next) => {
+  try {
+    req.db = await connectDB();
+    next();
+  } catch (err) {
+    res.status(500).send('Database connection error');
+  }
+});
 
 // @route   GET /api/pets
 // @desc    Get all available pets
 router.get('/', async (req, res) => {
   try {
-    const result = await sql.query`SELECT * FROM Pets`;
-    res.json(result.recordset);
+    const result = await req.db.query('SELECT * FROM "Pets" WHERE is_available = TRUE');
+    res.json(result.rows);
   } catch (err) {
     console.error(err);
     res.status(500).send('Server error');
@@ -20,10 +30,10 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   const { name, breed, age, description } = req.body;
   try {
-    const result = await sql.query`
-      INSERT INTO Pets (name, breed, age, description)
-      VALUES (${name}, ${breed}, ${age}, ${description})
-    `;
+    await req.db.query(
+      'INSERT INTO "Pets" (name, breed, age, description) VALUES ($1, $2, $3, $4)',
+      [name, breed, age, description]
+    );
     res.status(201).json({ message: 'Pet registered successfully!' });
   } catch (err) {
     console.error(err);
@@ -34,8 +44,8 @@ router.post('/', async (req, res) => {
 // Test endpoint to fetch data from the Pets table
 router.get('/test', async (req, res) => {
   try {
-    const result = await sql.query`SELECT TOP 1 * FROM Pets`;
-    res.json(result.recordset);
+    const result = await req.db.query('SELECT * FROM "Pets" LIMIT 1');
+    res.json(result.rows);
   } catch (err) {
     console.error('Error fetching test data:', err);
     res.status(500).send('Server error');
@@ -55,49 +65,46 @@ router.get('/matched', async (req, res) => {
     console.log('Fetching matched pets for Clerk User ID:', clerkUserId);
 
     // Fetch user's quiz answers
-    const quizAnswers = await sql.query`
-      SELECT question, answer
-      FROM dbo.QuizAnswers
-      WHERE clerk_user_id = ${clerkUserId}
-    `;
+    const quizAnswers = await req.db.query(
+      'SELECT question, answer FROM "QuizAnswers" WHERE clerk_user_id = $1',
+      [clerkUserId]
+    );
 
-    console.log('Quiz answers:', quizAnswers.recordset);
+    console.log('Quiz answers:', quizAnswers.rows);
 
     // Process quiz answers and create matching criteria
-    const { whereClauses, parameters } = processQuizAnswers(quizAnswers.recordset);
+    const { whereClauses, parameters } = processQuizAnswers(quizAnswers.rows);
 
     // Construct the SQL query with scoring
     const query = `
-      SELECT TOP 5 pet_id, name, breed, age, size, energy_level, living_environment, type, image1,
-        (CASE WHEN type = @p0 THEN 20 ELSE 0 END +
-         CASE WHEN size = @p1 THEN 20 ELSE 0 END +
-         CASE WHEN energy_level = @p2 THEN 20 ELSE 0 END +
-         CASE WHEN living_environment = @p3 THEN 20 ELSE 0 END) AS match_score
-      FROM dbo.Pets
-      WHERE is_available = 1
+      SELECT pet_id, name, breed, age, size, energy_level, living_environment, type, image1,
+        (CASE WHEN type = $1 THEN 20 ELSE 0 END +
+         CASE WHEN size = $2 THEN 20 ELSE 0 END +
+         CASE WHEN energy_level = $3 THEN 20 ELSE 0 END +
+         CASE WHEN living_environment = $4 THEN 20 ELSE 0 END) AS match_score
+      FROM "Pets"
+      WHERE is_available = TRUE
       ORDER BY match_score DESC, pet_id
+      LIMIT 5
     `;
 
     console.log('Generated SQL query:', query);
     console.log('Query parameters:', parameters);
 
-    // Create a new SQL request
-    const request = new sql.Request();
-
-    // Add parameters to the request
-    Object.entries(parameters).forEach(([key, value]) => {
-      request.input(key, value);
-    });
-
     // Execute the query with parameters
-    const matchedPets = await request.query(query);
+    const matchedPets = await req.db.query(query, [
+      parameters.p0, // pet type
+      parameters.p1, // size
+      parameters.p2, // energy level
+      parameters.p3, // living environment
+    ]);
 
-    console.log('Matched pets:', matchedPets.recordset);
+    console.log('Matched pets:', matchedPets.rows);
 
-    res.json(matchedPets.recordset);
+    res.json(matchedPets.rows);
   } catch (err) {
     console.error('Error fetching matched pets:', err);
-    res.status(500).json({ message: 'Server error', error: err.message, stack: err.stack });
+    res.status(500).json({ message: 'Server error', error: err.message});
   }
 });
 
@@ -110,39 +117,33 @@ function processQuizAnswers(answers) {
     switch (question) {
       case '0': // Pet type
         if (answer !== 'No preference') {
-          whereClauses.push(`type = @${paramName}`);
+          whereClauses.push(`type = $${index + 1}`);
           parameters[paramName] = answer.toLowerCase();
         }
         break;
       case '1': // Size
         if (answer !== 'No preference') {
-          whereClauses.push(`size = @${paramName}`);
+          whereClauses.push(`size = $${index + 1}`);
           parameters[paramName] = answer.split(' ')[0].toLowerCase(); // e.g., "large" from "Large (e.g., Golden Retriever, Ragdoll Cat)"
         }
         break;
       case '2': // Energy level
-        whereClauses.push(`energy_level = @${paramName}`);
+        whereClauses.push(`energy_level = $${index + 1}`);
         parameters[paramName] = mapEnergyLevel(answer);
         break;
       case '3': // Living environment
         if (answer === 'Apartment') {
-          whereClauses.push(`living_environment = @${paramName}`);
+          whereClauses.push(`living_environment = $${index + 1}`);
           parameters[paramName] = 'apartment_friendly';
         } else {
-          whereClauses.push(`living_environment = @${paramName}`);
+          whereClauses.push(`living_environment = $${index + 1}`);
           parameters[paramName] = 'house_with_yard';
         }
         break;
     }
   });
 
-  whereClauses.push('is_available = @isAvailable');
-  parameters.isAvailable = 1;
-
-  return { 
-    whereClauses,
-    parameters
-  };
+  return {whereClauses, parameters};
 }
 
 function mapEnergyLevel(answer) {
@@ -173,19 +174,14 @@ function mapAgeRange(answer) {
 
 router.get('/all', async (req, res) => {
   try {
-    const result = await sql.query`
-      SELECT pet_id, name, breed, age, size, energy_level, living_environment, type, image1
-      FROM dbo.Pets
-      WHERE is_available = 1
-      ORDER BY pet_id
-    `;
-    res.json(result.recordset);
+    const result = await req.db.query(
+      'SELECT pet_id, name, breed, age, size, energy_level, living_environment, type, image1 FROM "Pets" WHERE is_available = TRUE ORDER BY pet_id'
+    );
+    res.json(result.rows);
   } catch (err) {
     console.error('Error fetching all pets:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
-
-module.exports = router;
 
 module.exports = router;

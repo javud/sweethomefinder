@@ -1,11 +1,6 @@
-// syncUsers.js
 require('dotenv').config();
 const axios = require('axios');
-const sql = require('mssql');
 const connectDB = require('./config/db'); // Import your db config
-
-// Initialize database connection
-connectDB();
 
 // Function to fetch all the users in clerk db
 const fetchClerkUsers = async () => {
@@ -25,27 +20,27 @@ const fetchClerkUsers = async () => {
 
 const syncUsers = async () => {
   try {
-    const db = await connectDB(); // Ensure connection is established here
-
+    const pool = await connectDB(); // Ensure a connection is established here
     const clerkUsers = await fetchClerkUsers();
     const clerkUserIds = new Set(clerkUsers.map(user => user.id));
 
-    const result = await db.request().query('SELECT clerk_user_id FROM dbo.Adopters');
-    const azureUserIds = result.recordset.map(user => user.clerk_user_id);
+    // Fetch all users from Supabase/PostgreSQL
+    const result = await pool.query('SELECT clerk_user_id FROM "Adopters"');
+    const azureUserIds = result.rows.map(user => user.clerk_user_id);
 
+    // Identify users to delete
     const usersToDelete = azureUserIds.filter(id => !clerkUserIds.has(id));
 
+    // Delete users not present in Clerk
     for (const userId of usersToDelete) {
-      await db.request().query`
-        DELETE FROM dbo.Adopters WHERE clerk_user_id = ${userId}
-      `;
-      console.log(`Deleted user with Clerk ID: ${userId} from Azure database`);
+      await pool.query('DELETE FROM "Adopters" WHERE clerk_user_id = $1', [userId]);
+      console.log(`Deleted user with Clerk ID: ${userId} from Postgres database`);
     }
 
     console.log('User synchronization complete.');
   } catch (error) {
     console.error('Error during user synchronization:', error);
-  }
+  } 
 };
 
 module.exports = syncUsers;

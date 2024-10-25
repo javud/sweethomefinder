@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const cors = require('cors');
 const cron = require('node-cron');
 const syncUsers = require('./syncUsers');
+const pg = require('pg');
 const { ClerkExpressRequireAuth } = require('@clerk/clerk-sdk-node');
 
 const app = express();

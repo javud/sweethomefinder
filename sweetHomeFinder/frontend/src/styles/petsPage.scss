@@ -49,8 +49,7 @@
 
   .pets-container {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    justify-content: center;
   }
 
   .pets-list {
@@ -190,8 +189,19 @@
   }
 }
 
+.fullDetails {
+  display: block;
+  width: 200px;
+  height: 100px;
+  border: 1px solid black;
+  position: absolute;
+  z-index: 5;
+  left: 0;
+  top : 0;
+}
 
-@media (max-width: 1200px) {
+
+@media (max-width: 600px) {
   .pets-page {
     .pets-container {
       flex-direction: column-reverse;

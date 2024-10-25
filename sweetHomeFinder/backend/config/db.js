@@ -1,19 +1,17 @@
 // config/db.js
 
 require('dotenv').config();
-const sql = require('mssql');
+const { Pool } = require('pg');
 
 // Database connection configuration
 const config = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  server: process.env.DB_SERVER, // e.g., '440.database.windows.net'
+  host: process.env.DB_SERVER, // e.g., '440.database.windows.net'
   database: process.env.DB_NAME,
-  options: {
-    encrypt: true, // Use encryption for Azure SQL
-    trustServerCertificate: false, // Set this explicitly for Azure SQL
-    enableArithAbort: true, // This is required by Azure SQL
-    connectTimeout: 30000, // Increase the timeout to 30 seconds
+  port: process.env.DB_PORT,
+  ssl: {
+    rejectUnauthorized: false,
   },
 };
 
@@ -24,7 +22,8 @@ let pool = null;
 const connectDB = async () => {
   if (!pool) { // Only connect if there is no existing connection
     try {
-      pool = await sql.connect(config);
+      pool = new Pool(config);
+      await pool.connect();
       console.log('Connected to the database!');
     } catch (err) {
       console.error('Database connection failed: ', err);
