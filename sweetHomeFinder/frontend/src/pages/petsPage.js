@@ -16,6 +16,7 @@ function PetsPage() {
         energy_level: [],
         age: []
     });
+    const [selectedPet, setSelectedPet] = useState(null); // New state for selected pet
   
     useEffect(() => {
         if (isLoaded && isSignedIn) {
@@ -77,6 +78,15 @@ function PetsPage() {
         });
     };
 
+    const openPetDialog = (pet) => {
+        setSelectedPet(pet);
+        console.log("Selected pet: " + pet.name);
+    };
+
+    const closePetDialog = () => {
+        setSelectedPet(null);
+    };
+
     if (!isLoaded || loading) {
         return <div className="pets-page">Loading...</div>;
     }
@@ -116,7 +126,7 @@ function PetsPage() {
                     ) : (
                         <div className="pet-grid">
                             {pets.filter(filterPets).map((pet) => (
-                                <div key={pet.pet_id} className="pet-card">
+                                <div key={pet.pet_id} className="pet-card" onClick={() => openPetDialog(pet)}>
                                     <div className="pet-img">
                                         <img src={pet.image1 && pet.image1.length > 0 ? pet.image1 : blankImg} alt={pet.name}/>
                                         <h2 className="pet-name">{pet.name}</h2>
@@ -161,6 +171,25 @@ function PetsPage() {
                     </div>
                 )}
             </div>
+
+            {selectedPet && (
+                <div className="modal">
+                    <div className="modal-content">
+                        <span className="close" onClick={closePetDialog}>&times;</span>
+                        <h2>{selectedPet.name}</h2>
+                        <p><strong>Breed:</strong> {selectedPet.breed}</p>
+                        <p><strong>Age:</strong> {selectedPet.age} {selectedPet.type}</p>
+                        <p><strong>Size:</strong> {selectedPet.size}</p>
+                        <p><strong>Energy Level:</strong> {selectedPet.energy_level.replaceAll("_", " ")}</p>
+                        <p><strong>Bio:</strong> {selectedPet.bio}</p>
+                        {selectedPet.match_score && (
+                            <p><strong>Match Score:</strong> {selectedPet.match_score}%</p>
+                        )}
+                        <img src={selectedPet.image1 && selectedPet.image1.length > 0 ? selectedPet.image1 : blankImg} alt={selectedPet.name} />
+                        <div className="inquiryBtn">Send Inquiry</div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

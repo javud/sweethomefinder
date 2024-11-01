@@ -77,7 +77,7 @@ router.get('/matched', async (req, res) => {
 
     // Construct the SQL query with scoring
     const query = `
-      SELECT pet_id, name, breed, age, size, energy_level, living_environment, type, image1,
+      SELECT pet_id, name, breed, age, size, bio, energy_level, living_environment, type, image1,
         (CASE WHEN type = $1 THEN 20 ELSE 0 END +
          CASE WHEN size = $2 THEN 20 ELSE 0 END +
          CASE WHEN energy_level = $3 THEN 20 ELSE 0 END +
@@ -175,7 +175,7 @@ function mapAgeRange(answer) {
 router.get('/all', async (req, res) => {
   try {
     const result = await req.db.query(
-      'SELECT pet_id, name, breed, age, size, energy_level, living_environment, type, image1 FROM "Pets" WHERE is_available = TRUE ORDER BY pet_id'
+      'SELECT pet_id, name, breed, age, size, bio, energy_level, living_environment, type, image1 FROM "Pets" WHERE is_available = TRUE ORDER BY pet_id'
     );
     res.json(result.rows);
   } catch (err) {
