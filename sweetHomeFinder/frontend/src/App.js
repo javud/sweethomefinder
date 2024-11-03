@@ -9,6 +9,8 @@ import LoginPage from './pages/loginPage';
 import SignUpPage from './pages/signupPage';
 import AboutUsPage from './pages/aboutUsPage';
 import PetsPage from './pages/petsPage';
+import AdminPortal from './pages/AdminPortal';
+
 
 function App() {
   const { isSignedIn, user } = useUser();
@@ -100,6 +102,11 @@ function App() {
             isSignedIn && hasTakenQuiz ? <PetsPage /> : <Navigate to="/quiz" />
           } />
 
+          {/* Admin route */}
+          <Route path="/admin" element={
+            isSignedIn ? <AdminPortal /> : <Navigate to="/login" />
+          } />
+   
           <Route path="/about-us" element={<AboutUsPage />} />
         </Routes>
         <Footer />

@@ -134,5 +134,31 @@ router.post('/save-quiz-answers', async (req, res) => {
   }
 });
 
+// @route   GET /api/users/check-admin
+// @desc    Check if user is admin
+router.get('/check-admin', async (req, res) => {
+  try {
+    const { clerkUserId } = req.query;
+    
+    if (!clerkUserId) {
+      return res.status(400).json({ message: 'Clerk User ID is required' });
+    }
+
+    const result = await req.db.query(
+      'SELECT is_admin FROM "Adopters" WHERE clerk_user_id = $1',
+      [clerkUserId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ isAdmin: result.rows[0].is_admin });
+  } catch (err) {
+    console.error('Error checking admin status:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 module.exports = router;
 
