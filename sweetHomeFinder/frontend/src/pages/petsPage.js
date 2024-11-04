@@ -133,7 +133,7 @@ function PetsPage() {
                                     </div>
                                     <div className="pet-desc">
                                         <p>{pet.breed}</p>
-                                        <p>{pet.age} {pet.type}</p>
+                                        <p>{pet.age} old</p>
                                         <p>{pet.size}</p>
                                         <p>{pet.energy_level.replaceAll("_"," ")}</p>
                                         {!viewingAllPets && (
@@ -176,17 +176,30 @@ function PetsPage() {
                 <div className="modal">
                     <div className="modal-content">
                         <span className="close" onClick={closePetDialog}>&times;</span>
-                        <h2>{selectedPet.name}</h2>
-                        <p><strong>Breed:</strong> {selectedPet.breed}</p>
-                        <p><strong>Age:</strong> {selectedPet.age} {selectedPet.type}</p>
-                        <p><strong>Size:</strong> {selectedPet.size}</p>
-                        <p><strong>Energy Level:</strong> {selectedPet.energy_level.replaceAll("_", " ")}</p>
-                        <p><strong>Bio:</strong> {selectedPet.bio}</p>
-                        {selectedPet.match_score && (
-                            <p><strong>Match Score:</strong> {selectedPet.match_score}%</p>
-                        )}
+                        <div className="nameAndBreed">
+                            <h2>{selectedPet.name}</h2>
+                            <p>{selectedPet.breed} {selectedPet.type}</p>
+                        </div>
+                        <div className="info">
+                            <div className="category">
+                                <h3>Age</h3>
+                                <p>{selectedPet.age}</p>
+                            </div>
+                            <div className="category">
+                                <h3>Size</h3>
+                                <p>{selectedPet.size}</p>
+                            </div>
+                            <div className="category">
+                                <h3>Energy</h3>
+                                <p>{selectedPet.energy_level.substring(0, selectedPet.energy_level.indexOf("_"))}</p>
+                            </div>
+                        </div>
+                        <div className="bio">
+                            <h3>Bio</h3>
+                            <p>{selectedPet.bio}</p>
+                        </div>
                         <img src={selectedPet.image1 && selectedPet.image1.length > 0 ? selectedPet.image1 : blankImg} alt={selectedPet.name} />
-                        <div className="inquiryBtn">Send Inquiry</div>
+                        <div className="inquiryBtn">Request to Adopt</div>
                     </div>
                 </div>
             )}

@@ -207,10 +207,11 @@
 
 /* Modal content box */
 .modal-content {
-  background-color: rgb(255, 225, 251);
+  background-color: rgb(255, 255, 255);
+  border: 4px solid rgb(90, 0, 128);
   padding: 30px;
   border-radius: 20px;
-  max-width: 500px;
+  max-width: 400px;
   width: 80%;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
  // text-align: center;
@@ -220,39 +221,68 @@
 /* Close button */
 .modal-content .close {
   position: absolute;
-  top: 15px;
-  right: 25px;
-  font-size: 50px;
+  top: 20px;
+  right: 30px;
+  font-size: 40px;
   font-weight: bold;
   color: #333;
   cursor: pointer;
   transition: 0.2s;
-
-  &:hover {
-    transform: scale(1.1);
-  }
 }
 
 /* Pet image styling */
 .modal-content img {
   width: 100%;
-  max-width: 300px;
+  max-width: 400px;
   height: auto;
   border-radius: 15px;
   margin: 15px auto;
   display: block;
   border: 2px solid rgb(255, 255, 255);
+  cursor:  url('../assets/cursor.png'), auto;
 }
 
 /* Modal text styling */
 .modal-content h2 {
   margin-top: 0;
-  color: #333;
+  margin-bottom: 0;
+  font-size: 30px;
+  color: #8700b0;
 }
 
-.modal-content h2 {
-  font-size: 30px;
+.modal-content h3 {
+  margin: 0;
+}
+
+.modal-content .nameAndBreed {
   text-align: center;
+  margin-bottom: 20px;
+}
+
+.modal-content .info {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 10px;
+  .category {
+    text-align: center;
+    border: 1px solid rgb(193, 193, 193);
+    border-radius: 15px;
+    padding: 10px;
+    flex-basis: 100%;
+    transition: 0.3s;
+    &:hover {
+      cursor: pointer;
+      background-color: rgb(232, 232, 232);
+    }
+  }
+}
+
+.modal-content .bio {
+  margin-top: 10px;
+  margin-bottom: 20px;
 }
 
 .modal-content p {
@@ -262,7 +292,7 @@
 }
 
 .modal-content .inquiryBtn {
-  background-color: black;
+  background-color: rgb(90, 0, 128);
   border-radius: 20px;
   color: white;
   width: fit-content;
@@ -275,7 +305,6 @@
   font-size: 20px;
   &:hover {
     background-color: purple;
-    transform: scale(1.05);
     cursor: pointer;
   }
 }
