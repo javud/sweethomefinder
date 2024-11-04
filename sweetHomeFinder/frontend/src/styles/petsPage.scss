@@ -207,10 +207,11 @@
 
 /* Modal content box */
 .modal-content {
-  background-color: rgb(255, 225, 251);
+  background-color: rgb(255, 255, 255);
+  border: 4px solid rgb(90, 0, 128);
   padding: 30px;
   border-radius: 20px;
-  max-width: 500px;
+  max-width: 400px;
   width: 80%;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
  // text-align: center;
@@ -220,23 +221,19 @@
 /* Close button */
 .modal-content .close {
   position: absolute;
-  top: 15px;
-  right: 25px;
-  font-size: 50px;
+  top: 20px;
+  right: 30px;
+  font-size: 40px;
   font-weight: bold;
   color: #333;
   cursor: pointer;
   transition: 0.2s;
-
-  &:hover {
-    transform: scale(1.1);
-  }
 }
 
 /* Pet image styling */
 .modal-content img {
   width: 100%;
-  max-width: 300px;
+  max-width: 400px;
   height: auto;
   border-radius: 15px;
   margin: 15px auto;
