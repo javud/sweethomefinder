@@ -170,6 +170,59 @@ router.post('/upload-image', upload.single('image'), async (req, res) => {
   }
 });
 
+// @route   GET /api/pets/admin
+// @desc    Get all pets (including unavailable ones) for admin
+router.get('/admin', async (req, res) => {
+  try {
+    const result = await req.db.query('SELECT * FROM "Pets" ORDER BY pet_id DESC');
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching pets for admin:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// @route   PUT /api/pets/:id
+// @desc    Update an existing pet
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      name,
+      breed,
+      age,
+      size,
+      bio,
+      type,
+      energy_level,
+      living_environment,
+      medical_history,
+      image1,
+      is_available
+    } = req.body;
+
+    const result = await req.db.query(
+      `UPDATE "Pets" 
+       SET name = $1, breed = $2, age = $3, size = $4, bio = $5, 
+           type = $6, energy_level = $7, living_environment = $8, 
+           medical_history = $9, image1 = $10, is_available = $11
+       WHERE pet_id = $12
+       RETURNING *`,
+      [name, breed, age, size, bio, type, energy_level, living_environment, 
+       medical_history, image1, is_available, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Pet not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Error updating pet:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 function processQuizAnswers(answers) {
   let whereClauses = [];
   let parameters = {};

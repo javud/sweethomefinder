@@ -11,6 +11,10 @@ function AdminPortal() {
   const [successMessage, setSuccessMessage] = useState('');
   const [imageUploading, setImageUploading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [showNewPetForm, setShowNewPetForm] = useState(true);
+  const [existingPets, setExistingPets] = useState([]);
+  const [editingPet, setEditingPet] = useState(null);
+  
   const [formData, setFormData] = useState({
     name: '',
     type: '',
@@ -67,6 +71,24 @@ function AdminPortal() {
     checkAdminStatus();
   }, [user]);
 
+  useEffect(() => {
+    if (isAdmin) {
+      fetchExistingPets();
+    }
+  }, [isAdmin]);
+
+  const fetchExistingPets = async () => {
+    try {
+      const response = await fetch('http://localhost:5001/api/pets/admin');
+      if (response.ok) {
+        const data = await response.json();
+        setExistingPets(data);
+      }
+    } catch (error) {
+      console.error('Error fetching existing pets:', error);
+    }
+  };
+
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -83,10 +105,17 @@ function AdminPortal() {
 
       if (response.ok) {
         const data = await response.json();
-        setFormData(prev => ({
-          ...prev,
-          image1: data.url
-        }));
+        if (editingPet) {
+          setEditingPet(prev => ({
+            ...prev,
+            image1: data.url
+          }));
+        } else {
+          setFormData(prev => ({
+            ...prev,
+            image1: data.url
+          }));
+        }
         setSelectedImage(URL.createObjectURL(file));
       } else {
         throw new Error('Failed to upload image');
@@ -101,10 +130,17 @@ function AdminPortal() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
+    if (editingPet) {
+      setEditingPet(prevState => ({
+        ...prevState,
+        [name]: value
+      }));
+    } else {
+      setFormData(prevState => ({
+        ...prevState,
+        [name]: value
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -113,10 +149,9 @@ function AdminPortal() {
     try {
       const submissionData = {
         ...formData,
-        age: `${formData.age} ${formData.ageUnit}`, // Combine age and unit
+        age: `${formData.age} ${formData.ageUnit}`,
       };
 
-      // Remove ageUnit from the final submission
       delete submissionData.ageUnit;
 
       const response = await fetch('http://localhost:5001/api/pets/list', {
@@ -129,8 +164,6 @@ function AdminPortal() {
 
       if (response.ok) {
         setSuccessMessage('Successfully listed new pet!');
-        
-        // Reset form with ageUnit included
         setFormData({
           name: '',
           type: '',
@@ -145,6 +178,7 @@ function AdminPortal() {
           image1: 'https://i.pinimg.com/originals/22/1c/20/221c2021c91d60b1eb13ea676460a92c.png'
         });
         setSelectedImage(null);
+        fetchExistingPets();
 
         setTimeout(() => {
           setSuccessMessage('');
@@ -156,6 +190,47 @@ function AdminPortal() {
       console.error('Error listing pet:', error);
       setSuccessMessage('Error: Failed to list pet');
     }
+  };
+
+  const handleUpdatePet = async (e) => {
+    e.preventDefault();
+    try {
+      const updateData = {
+        ...editingPet,
+        age: `${editingPet.age} ${editingPet.ageUnit}`,
+      };
+      delete updateData.ageUnit;
+
+      const response = await fetch(`http://localhost:5001/api/pets/${editingPet.pet_id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData)
+      });
+
+      if (response.ok) {
+        setSuccessMessage('Pet updated successfully!');
+        setEditingPet(null);
+        fetchExistingPets();
+        setTimeout(() => setSuccessMessage(''), 3000);
+      } else {
+        throw new Error('Failed to update pet');
+      }
+    } catch (error) {
+      console.error('Error updating pet:', error);
+      setSuccessMessage('Error: Failed to update pet');
+    }
+  };
+
+  const handleEditPet = (pet) => {
+    const ageInfo = pet.age.split(' ');
+    setEditingPet({
+      ...pet,
+      age: ageInfo[0],
+      ageUnit: ageInfo[1]
+    });
+    setShowNewPetForm(false);
   };
 
   const renderApplications = () => (
@@ -194,13 +269,180 @@ function AdminPortal() {
     </div>
   );
 
+  const renderPetForm = (data, submitHandler) => (
+    <form className="pet-form" onSubmit={submitHandler}>
+      <input
+        type="text"
+        name="name"
+        placeholder="Pet Name"
+        value={data.name}
+        onChange={handleInputChange}
+        required
+      />
+      
+      <select
+        name="type"
+        value={data.type}
+        onChange={handleInputChange}
+        required
+      >
+        <option value="">Select Species</option>
+        <option value="dog">Dog</option>
+        <option value="cat">Cat</option>
+      </select>
+      
+      <input
+        type="text"
+        name="breed"
+        placeholder="Breed"
+        value={data.breed}
+        onChange={handleInputChange}
+        required
+      />
+      
+      <div className="age-input-group">
+        <input
+          type="number"
+          name="age"
+          placeholder="Age"
+          value={data.age}
+          onChange={handleInputChange}
+          required
+          style={{ flex: '1' }}
+        />
+        <select
+          name="ageUnit"
+          value={data.ageUnit}
+          onChange={handleInputChange}
+          required
+          style={{ flex: '1' }}
+        >
+          <option value="years">Years</option>
+          <option value="months">Months</option>
+        </select>
+      </div>
+      
+      <select
+        name="size"
+        value={data.size}
+        onChange={handleInputChange}
+        required
+      >
+        <option value="">Select Size</option>
+        <option value="small">Small</option>
+        <option value="medium">Medium</option>
+        <option value="large">Large</option>
+      </select>
+
+      <select
+        name="energy_level"
+        value={data.energy_level}
+        onChange={handleInputChange}
+        required
+      >
+        <option value="">Select Energy Level</option>
+        <option value="low_energy">Low Energy</option>
+        <option value="moderate_energy">Moderate Energy</option>
+        <option value="high_energy">High Energy</option>
+      </select>
+
+      <select
+        name="living_environment"
+        value={data.living_environment}
+        onChange={handleInputChange}
+        required
+      >
+        <option value="">Select Living Environment</option>
+        <option value="apartment_friendly">Apartment Friendly</option>
+        <option value="house_with_yard">House with Yard</option>
+      </select>
+      
+      <textarea
+        name="bio"
+        placeholder="Description"
+        value={data.bio}
+        onChange={handleInputChange}
+        required
+      />
+      
+      <textarea
+        name="medical_history"
+        placeholder="Medical History"
+        value={data.medical_history}
+        onChange={handleInputChange}
+        required
+      />
+      
+      <div className="photo-upload">
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          disabled={imageUploading}
+          style={{ display: 'none' }}
+          id="image-upload"
+        />
+        <label htmlFor="image-upload" className="upload-button">
+          {imageUploading ? 'Uploading...' : 'Upload Pet Photo'}
+        </label>
+        {selectedImage && (
+          <div className="image-preview">
+            <img src={selectedImage} alt="Pet preview" />
+          </div>
+        )}
+        <input
+          type="text"
+          name="image1"
+          placeholder="Image URL (will be set automatically after upload)"
+          value={data.image1}
+          onChange={handleInputChange}
+          readOnly
+          style={{ marginTop: '0.5rem' }}
+        />
+      </div>
+      
+      <button type="submit" className="submit-btn">
+        {editingPet ? 'Update Pet' : 'List Pet'}
+      </button>
+      {editingPet && (
+        <button 
+          type="button" 
+          className="cancel-btn" 
+          onClick={() => {
+            setEditingPet(null);
+            setShowNewPetForm(true);
+          }}
+        >
+          Cancel Edit
+        </button>
+      )}
+    </form>
+  );
+
   const renderPetManagement = () => (
     <div className="content-section">
       <div className="section-header">
         <h2>Pet Management</h2>
-        <button className="add-pet-btn">
-          + Add New Pet
-        </button>
+        <div className="management-buttons">
+          <button 
+            className={`add-pet-btn ${showNewPetForm ? 'active' : ''}`}
+            onClick={() => {
+              setShowNewPetForm(true);
+              setEditingPet(null);
+            }}
+          >
+            + Add New Pet
+          </button>
+          <button 
+            className={`edit-pets-btn ${!showNewPetForm ? 'active' : ''}`}
+            onClick={() => {
+              setShowNewPetForm(false);
+              setEditingPet(null);
+            }}
+          >
+            Edit Existing Listings
+          </button>
+        </div>
       </div>
       {successMessage && (
         <div className="success-message">
@@ -208,142 +450,44 @@ function AdminPortal() {
         </div>
       )}
       <div className="pet-management-tools">
-        <div className="tool-section">
-          <h3>List New Pet</h3>
-          <form className="pet-form" onSubmit={handleSubmit}>
-            <input
-              type="text"
-              name="name"
-              placeholder="Pet Name"
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-            />
-            
-            <select
-              name="type"
-              value={formData.type}
-              onChange={handleInputChange}
-              required
-            >
-              <option value="">Select Species</option>
-              <option value="dog">Dog</option>
-              <option value="cat">Cat</option>
-            </select>
-            
-            <input
-              type="text"
-              name="breed"
-              placeholder="Breed"
-              value={formData.breed}
-              onChange={handleInputChange}
-              required
-            />
-            
-            <div className="age-input-group">
-              <input
-                type="number"
-                name="age"
-                placeholder="Age"
-                value={formData.age}
-                onChange={handleInputChange}
-                required
-                style={{ flex: '1' }}
-              />
-              <select
-                name="ageUnit"
-                value={formData.ageUnit}
-                onChange={handleInputChange}
-                required
-                style={{ flex: '1' }}
-              >
-                <option value="years">Years</option>
-                <option value="months">Months</option>
-              </select>
-            </div>
-            
-            <select
-              name="size"
-              value={formData.size}
-              onChange={handleInputChange}
-              required
-            >
-              <option value="">Select Size</option>
-              <option value="small">Small</option>
-              <option value="medium">Medium</option>
-              <option value="large">Large</option>
-            </select>
-
-            <select
-              name="energy_level"
-              value={formData.energy_level}
-              onChange={handleInputChange}
-              required
-            >
-              <option value="">Select Energy Level</option>
-              <option value="low_energy">Low Energy</option>
-              <option value="moderate_energy">Moderate Energy</option>
-              <option value="high_energy">High Energy</option>
-            </select>
-
-            <select
-              name="living_environment"
-              value={formData.living_environment}
-              onChange={handleInputChange}
-              required
-            >
-              <option value="">Select Living Environment</option>
-              <option value="apartment_friendly">Apartment Friendly</option>
-              <option value="house_with_yard">House with Yard</option>
-            </select>
-            
-            <textarea
-              name="bio"
-              placeholder="Description"
-              value={formData.bio}
-              onChange={handleInputChange}
-              required
-            />
-            
-            <textarea
-              name="medical_history"
-              placeholder="Medical History"
-              value={formData.medical_history}
-              onChange={handleInputChange}
-              required
-            />
-            
-            <div className="photo-upload">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                disabled={imageUploading}
-                style={{ display: 'none' }}
-                id="image-upload"
-              />
-              <label htmlFor="image-upload" className="upload-button">
-                {imageUploading ? 'Uploading...' : 'Upload Pet Photo'}
-              </label>
-              {selectedImage && (
-                <div className="image-preview">
-                  <img src={selectedImage} alt="Pet preview" />
-                </div>
-              )}
-              <input
-                type="text"
-                name="image1"
-                placeholder="Image URL (will be set automatically after upload)"
-                value={formData.image1}
-                onChange={handleInputChange}
-                readOnly
-                style={{ marginTop: '0.5rem' }}
-              />
-            </div>
-            
-            <button type="submit" className="submit-btn">List Pet</button>
-          </form>
-        </div>
+        {showNewPetForm ? (
+          <div className="tool-section">
+            <h3>List New Pet</h3>
+            {renderPetForm(formData, handleSubmit)}
+          </div>
+        ) : (
+          <div className="existing-pets-section">
+            <h3>Edit Existing Pets</h3>
+            {editingPet ? (
+              <div className="edit-form-container">
+                <h4>Editing: {editingPet.name}</h4>
+                {renderPetForm(editingPet, handleUpdatePet)}
+              </div>
+            ) : (
+              <div className="pets-grid">
+                {existingPets.map(pet => (
+                  <div key={pet.pet_id} className="pet-edit-card">
+                    <img 
+                      src={pet.image1 || 'https://i.pinimg.com/originals/22/1c/20/221c2021c91d60b1eb13ea676460a92c.png'} 
+                      alt={pet.name}
+                    />
+                    <div className="pet-info">
+                      <h4>{pet.name}</h4>
+                      <p>{pet.breed}</p>
+                      <p>{pet.age}</p>
+                      <button 
+                        className="edit-btn"
+                        onClick={() => handleEditPet(pet)}
+                      >
+                        Edit
+                      </button>
+                      </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
