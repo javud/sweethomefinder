@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useUser } from '@clerk/clerk-react';
 import { PlusCircle, MessageCircle, ListChecks, BarChart3, Users, PawPrint } from 'lucide-react';
 import '../styles/adminPortal.scss';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+
 
 function AdminPortal() {
   const { user } = useUser();
@@ -14,6 +16,9 @@ function AdminPortal() {
   const [showNewPetForm, setShowNewPetForm] = useState(true);
   const [existingPets, setExistingPets] = useState([]);
   const [editingPet, setEditingPet] = useState(null);
+  const [listingStats, setListingStats] = useState([]);
+  const [analyticsData, setAnalyticsData] = useState({ monthlyStats: [], totalListings: 0 });
+
   
   const [formData, setFormData] = useState({
     name: '',
@@ -76,6 +81,38 @@ function AdminPortal() {
       fetchExistingPets();
     }
   }, [isAdmin]);
+
+  useEffect(() => {
+    const fetchListingStats = async () => {
+      if (activeSection === 'analytics') {
+        try {
+          const response = await fetch('http://localhost:5001/api/pets/all');
+          const pets = await response.json();
+          
+          const monthlyStats = {};
+          pets.forEach(pet => {
+            const month = new Date().toLocaleString('default', { month: 'long' });
+            monthlyStats[month] = (monthlyStats[month] || 0) + 1;
+          });
+  
+          const statsArray = Object.entries(monthlyStats).map(([month, count]) => ({
+            month,
+            listings: count
+          }));
+  
+          setAnalyticsData({
+            monthlyStats: statsArray,
+            totalListings: pets.length
+          });
+  
+        } catch (error) {
+          console.error('Error fetching listing stats:', error);
+        }
+      }
+    };
+  
+    fetchListingStats();
+  }, [activeSection]);
 
   const fetchExistingPets = async () => {
     try {
@@ -492,6 +529,47 @@ function AdminPortal() {
     </div>
   );
 
+  const renderAnalytics = () => (
+    <div className="content-section">
+      <h2>Analytics Dashboard</h2>
+      <div className="analytics-summary">
+        <div className="analytics-card summary-card">
+          <div className="stat-value">{analyticsData.totalListings}</div>
+          <div className="stat-label">Total Pet Listings</div>
+        </div>
+      </div>
+      <div className="analytics-card">
+        <h3>Monthly Pet Listings</h3>
+        <div className="chart-container">
+          <ResponsiveContainer width="100%" height={400}>
+            <LineChart
+              data={analyticsData.monthlyStats}
+              margin={{
+                top: 5,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="listings"
+                stroke="#5c13df"
+                activeDot={{ r: 8 }}
+                name="New Listings"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderMessages = () => (
     <div className="content-section">
       <div className="section-header">
@@ -570,12 +648,7 @@ function AdminPortal() {
         {activeSection === 'applications' && renderApplications()}
         {activeSection === 'pets' && renderPetManagement()}
         {activeSection === 'messages' && renderMessages()}
-        {activeSection === 'analytics' && (
-          <div className="content-section">
-            <h2>Analytics Dashboard</h2>
-            {/* Add analytics could be amount of new inqueries or sum*/}
-          </div>
-        )}
+        {activeSection === 'analytics' && renderAnalytics()}
       </div>
     </div>
   );
