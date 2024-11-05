@@ -212,6 +212,8 @@
   padding: 30px;
   border-radius: 20px;
   max-width: 400px;
+  max-height: 700px;
+  overflow-y: scroll;
   width: 80%;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
  // text-align: center;
@@ -221,8 +223,8 @@
 /* Close button */
 .modal-content .close {
   position: absolute;
-  top: 20px;
-  right: 30px;
+  top: 15px;
+  right: 20px;
   font-size: 40px;
   font-weight: bold;
   color: #333;
@@ -233,7 +235,7 @@
 /* Pet image styling */
 .modal-content img {
   width: 100%;
-  max-width: 400px;
+  max-height: 300px;
   height: auto;
   border-radius: 15px;
   margin: 15px auto;
@@ -280,7 +282,7 @@
   }
 }
 
-.modal-content .bio {
+.modal-content .section {
   margin-top: 10px;
   margin-bottom: 20px;
 }

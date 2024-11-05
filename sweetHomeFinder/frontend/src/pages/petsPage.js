@@ -178,7 +178,7 @@ function PetsPage() {
                         <span className="close" onClick={closePetDialog}>&times;</span>
                         <div className="nameAndBreed">
                             <h2>{selectedPet.name}</h2>
-                            <p>{selectedPet.breed} {selectedPet.type}</p>
+                            <p>{selectedPet.breed} {selectedPet.type} | {selectedPet.sex} </p>
                         </div>
                         <div className="info">
                             <div className="category">
@@ -194,10 +194,24 @@ function PetsPage() {
                                 <p>{selectedPet.energy_level.substring(0, selectedPet.energy_level.indexOf("_"))}</p>
                             </div>
                         </div>
-                        <div className="bio">
+                        <div className="section">
                             <h3>Bio</h3>
-                            <p>{selectedPet.bio}</p>
+                            {selectedPet.bio ? (
+                                <p>{selectedPet.bio}</p>
+                                ) : (
+                                    <p>No bio available.</p>
+                                )
+                            }
                         </div>
+                            <div className="section">
+                                <h3>Medical History</h3>
+                            {selectedPet.medical_history ? (
+                                <p>{selectedPet.medical_history}</p>
+                                ) : (
+                                    <p>No medical history available.</p>
+                                )
+                            }
+                            </div>
                         <img src={selectedPet.image1 && selectedPet.image1.length > 0 ? selectedPet.image1 : blankImg} alt={selectedPet.name} />
                         <div className="inquiryBtn">Request to Adopt</div>
                     </div>

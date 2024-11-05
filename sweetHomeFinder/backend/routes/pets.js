@@ -34,8 +34,8 @@ router.post('/', async (req, res) => {
   const { name, breed, age, description } = req.body;
   try {
     await req.db.query(
-      'INSERT INTO "Pets" (name, breed, age, description) VALUES ($1, $2, $3, $4)',
-      [name, breed, age, description]
+      'INSERT INTO "Pets" (name, breed, age, sex, description) VALUES ($1, $2, $3, $4, $5)',
+      [name, breed, age, sex, description]
     );
     res.status(201).json({ message: 'Pet registered successfully!' });
   } catch (err) {
@@ -80,7 +80,7 @@ router.get('/matched', async (req, res) => {
 
     // Construct the SQL query with scoring
     const query = `
-      SELECT pet_id, name, breed, age, size, bio, energy_level, living_environment, type, image1,
+      SELECT pet_id, name, breed, age, sex, size, bio, medical_history, energy_level, living_environment, type, image1,
         (CASE WHEN type = $1 THEN 20 ELSE 0 END +
          CASE WHEN size = $2 THEN 20 ELSE 0 END +
          CASE WHEN energy_level = $3 THEN 20 ELSE 0 END +
@@ -119,22 +119,24 @@ router.post('/list', async (req, res) => {
       name,
       breed,
       age,
+      sex,
       size,
       bio,
-      type,
+      medical_history,
+      is_available,
       energy_level,
       living_environment,
-      medical_history,
+      type,
       image1
     } = req.body;
 
     // Let the database handle the pet_id auto-increment
     const result = await req.db.query(
       `INSERT INTO "Pets" 
-       (name, breed, age, size, bio, type, energy_level, living_environment, medical_history, image1, is_available) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, true) 
+       (name, breed, age, sex, size, bio, medical_history, is_available, energy_level, living_environment, type, image1) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) 
        RETURNING pet_id`,
-      [name, breed, age, size, bio, type, energy_level, living_environment, medical_history, image1]
+      [name, breed, age, sex, size, bio, medical_history, is_available, energy_level, living_environment, type, image1]
     );
 
     res.status(201).json({ 
@@ -191,6 +193,7 @@ router.put('/:id', async (req, res) => {
       name,
       breed,
       age,
+      sex,
       size,
       bio,
       type,
@@ -203,12 +206,12 @@ router.put('/:id', async (req, res) => {
 
     const result = await req.db.query(
       `UPDATE "Pets" 
-       SET name = $1, breed = $2, age = $3, size = $4, bio = $5, 
-           type = $6, energy_level = $7, living_environment = $8, 
-           medical_history = $9, image1 = $10, is_available = $11
-       WHERE pet_id = $12
+       SET name = $1, breed = $2, age = $3, sex = $4, size = $5, bio = $6, 
+           type = $7, energy_level = $8, living_environment = $9, 
+           medical_history = $10, image1 = $11, is_available = $12
+       WHERE pet_id = $13
        RETURNING *`,
-      [name, breed, age, size, bio, type, energy_level, living_environment, 
+      [name, breed, age, sex, size, bio, type, energy_level, living_environment, 
        medical_history, image1, is_available, id]
     );
 
@@ -290,7 +293,7 @@ function mapAgeRange(answer) {
 router.get('/all', async (req, res) => {
   try {
     const result = await req.db.query(
-      'SELECT pet_id, name, breed, age, size, bio, energy_level, living_environment, type, image1 FROM "Pets" WHERE is_available = TRUE ORDER BY pet_id'
+      'SELECT pet_id, name, breed, age, sex, size, bio, medical_history, energy_level, living_environment, type, image1 FROM "Pets" WHERE is_available = TRUE ORDER BY pet_id'
     );
     res.json(result.rows);
   } catch (err) {

@@ -25,12 +25,14 @@ function AdminPortal() {
     type: '',
     breed: '',
     age: '',
+    sex: '',
     ageUnit: 'years',
     size: '',
     energy_level: '',
     living_environment: '',
     bio: '',
     medical_history: '',
+    is_available: '',
     image1: 'https://i.pinimg.com/originals/22/1c/20/221c2021c91d60b1eb13ea676460a92c.png'
   });
 
@@ -42,7 +44,7 @@ function AdminPortal() {
       status: "Pending",
       date: "2024-03-01",
       quizResults: "85% match",
-      message: "I would love to cook this bitch ass dog"
+      message: "I would love to adopt this adorable dog."
     }
   ]);
 
@@ -206,6 +208,7 @@ function AdminPortal() {
           type: '',
           breed: '',
           age: '',
+          sex: '',
           ageUnit: 'years',
           size: '',
           energy_level: '',
@@ -360,6 +363,17 @@ function AdminPortal() {
       </div>
       
       <select
+        name="sex"
+        value={data.sex}
+        onChange={handleInputChange}
+        required
+      >
+        <option value="">Select Sex</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+      </select>
+
+      <select
         name="size"
         value={data.size}
         onChange={handleInputChange}
@@ -399,7 +413,6 @@ function AdminPortal() {
         placeholder="Description"
         value={data.bio}
         onChange={handleInputChange}
-        required
       />
       
       <textarea
@@ -407,8 +420,19 @@ function AdminPortal() {
         placeholder="Medical History"
         value={data.medical_history}
         onChange={handleInputChange}
-        required
       />
+
+      <select
+        name="is_available"
+        value={data.is_available}
+        onChange={handleInputChange}
+        defaultValue={true}
+        required
+      >
+        <option value="">Select Pet Availability</option>
+        <option value="true">Available</option>
+        <option value="false">Not Available</option>
+      </select>
       
       <div className="photo-upload">
         <input
@@ -468,7 +492,7 @@ function AdminPortal() {
               setEditingPet(null);
             }}
           >
-            + Add New Pet
+            Add New Pet
           </button>
           <button 
             className={`edit-pets-btn ${!showNewPetForm ? 'active' : ''}`}
@@ -510,8 +534,13 @@ function AdminPortal() {
                     />
                     <div className="pet-info">
                       <h4>{pet.name}</h4>
-                      <p>{pet.breed}</p>
-                      <p>{pet.age}</p>
+                      <p>{pet.breed} | {pet.sex}</p>
+                      <p>{pet.age} old</p>
+                      {pet.is_available ? (
+                        <p className="available">Available</p>
+                      ) : (
+                        <p className="unavailable">Unavailable</p>
+                      )}
                       <button 
                         className="edit-btn"
                         onClick={() => handleEditPet(pet)}
