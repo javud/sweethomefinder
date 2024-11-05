@@ -2,6 +2,9 @@
 const express = require('express');
 const router = express.Router();
 const connectDB = require('../config/db');
+const cloudinary = require('../config/cloudinary');
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() });
 
 // Middleware to connect to the database
 router.use(async (req, res, next) => {
@@ -105,6 +108,65 @@ router.get('/matched', async (req, res) => {
   } catch (err) {
     console.error('Error fetching matched pets:', err);
     res.status(500).json({ message: 'Server error', error: err.message});
+  }
+});
+
+// @route   POST /api/pets/list
+// @desc    List a new pet
+router.post('/list', async (req, res) => {
+  try {
+    const {
+      name,
+      breed,
+      age,
+      size,
+      bio,
+      type,
+      energy_level,
+      living_environment,
+      medical_history,
+      image1
+    } = req.body;
+
+    // Let the database handle the pet_id auto-increment
+    const result = await req.db.query(
+      `INSERT INTO "Pets" 
+       (name, breed, age, size, bio, type, energy_level, living_environment, medical_history, image1, is_available) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, true) 
+       RETURNING pet_id`,
+      [name, breed, age, size, bio, type, energy_level, living_environment, medical_history, image1]
+    );
+
+    res.status(201).json({ 
+      message: 'Pet listed successfully!',
+      pet_id: result.rows[0].pet_id 
+    });
+  } catch (err) {
+    console.error('Error listing pet:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+
+router.post('/upload-image', upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No image file provided' });
+    }
+
+    // Convert buffer to base64
+    const b64 = Buffer.from(req.file.buffer).toString('base64');
+    const dataURI = 'data:' + req.file.mimetype + ';base64,' + b64;
+
+    // Upload to Cloudinary
+    const result = await cloudinary.uploader.upload(dataURI, {
+      folder: 'pet_images',
+    });
+
+    res.json({ url: result.secure_url });
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    res.status(500).json({ message: 'Error uploading image' });
   }
 });
 
