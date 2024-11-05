@@ -16,6 +16,33 @@ router.use(async (req, res, next) => {
   }
 });
 
+// @route   DELETE /api/pets/:id
+// @desc    Delete a pet
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const checkResult = await req.db.query(
+      'SELECT * FROM "Pets" WHERE pet_id = $1',
+      [id]
+    );
+
+    if (checkResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Pet not found' });
+    }
+
+    await req.db.query(
+      'DELETE FROM "Pets" WHERE pet_id = $1',
+      [id]
+    );
+
+    res.json({ message: 'Pet deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting pet:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 // @route   GET /api/pets
 // @desc    Get all available pets
 router.get('/', async (req, res) => {

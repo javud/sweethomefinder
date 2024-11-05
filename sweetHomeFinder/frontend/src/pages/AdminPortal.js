@@ -182,6 +182,31 @@ function AdminPortal() {
     }
   };
 
+  const handleDeletePet = async (petId) => {
+    if (!window.confirm('Are you sure you want to delete this pet?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5001/api/pets/${petId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setSuccessMessage('Pet deleted successfully!');
+        fetchExistingPets();
+        setTimeout(() => {
+          setSuccessMessage('');
+        }, 3000);
+      } else {
+        throw new Error('Failed to delete pet');
+      }
+    } catch (error) {
+      console.error('Error deleting pet:', error);
+      setSuccessMessage('Error: Failed to delete pet');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -541,13 +566,42 @@ function AdminPortal() {
                       ) : (
                         <p className="unavailable">Unavailable</p>
                       )}
-                      <button 
-                        className="edit-btn"
-                        onClick={() => handleEditPet(pet)}
-                      >
-                        Edit
-                      </button>
+                      <div className="pet-actions">
+                        <button 
+                          className="edit-btn"
+                          onClick={() => handleEditPet(pet)}
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          className="delete-btn"
+                          onClick={() => {
+                            if (window.confirm('Are you sure you want to delete this pet?')) {
+                              fetch(`http://localhost:5001/api/pets/${pet.pet_id}`, {
+                                method: 'DELETE',
+                              })
+                              .then(response => {
+                                if (response.ok) {
+                                  setSuccessMessage('Pet deleted successfully!');
+                                  fetchExistingPets();
+                                  setTimeout(() => {
+                                    setSuccessMessage('');
+                                  }, 3000);
+                                } else {
+                                  throw new Error('Failed to delete pet');
+                                }
+                              })
+                              .catch(error => {
+                                console.error('Error deleting pet:', error);
+                                setSuccessMessage('Error: Failed to delete pet');
+                              });
+                            }
+                          }}
+                        >
+                          Delete
+                        </button>
                       </div>
+                    </div>
                   </div>
                 ))}
               </div>
