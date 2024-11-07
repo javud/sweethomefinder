@@ -140,7 +140,45 @@
     }
     .pet-img {
       position: relative;
+      
+      .pending-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: linear-gradient(45deg, rgba(255, 181, 71, 0.95), rgba(255, 153, 0, 0.95));
+        color: #4A3200;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        z-index: 2;
+        transition: all 0.3s ease;
+        letter-spacing: -0.2px;
+        
+        span {
+          font-size: 13px;
+          animation: pulse 2s infinite;
+        }
+    
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+        }
+      }
     }
+    
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.6; }
+      100% { opacity: 1; }
+    }
+
     .pet-name {
       position: absolute;
       bottom: -15px;

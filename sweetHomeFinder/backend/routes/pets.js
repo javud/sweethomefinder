@@ -253,6 +253,37 @@ router.put('/:id', async (req, res) => {
   }
 });
 
+// @route   GET /api/pets/with-status
+// @desc    Get all available pets with their adoption request status
+router.get('/with-status', async (req, res) => {
+  try {
+    const query = `
+      SELECT p.*,
+             CASE 
+               WHEN ar.status = 'Pending' THEN true 
+               ELSE false 
+             END as has_pending_request
+      FROM "Pets" p
+      LEFT JOIN (
+        SELECT DISTINCT ON (pet_id) 
+          pet_id, 
+          status
+        FROM "AdoptionRequests"
+        WHERE status = 'Pending'
+        ORDER BY pet_id, timestamp DESC
+      ) ar ON p.pet_id = ar.pet_id
+      WHERE p.is_available = TRUE
+      ORDER BY p.pet_id DESC
+    `;
+    
+    const result = await req.db.query(query);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching pets with status:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 function processQuizAnswers(answers) {
   let whereClauses = [];
   let parameters = {};

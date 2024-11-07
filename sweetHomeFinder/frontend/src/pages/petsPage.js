@@ -33,25 +33,25 @@ function PetsPage() {
   
     const fetchPets = async () => {
         try {
-            const token = await getToken();
-            const endpoint = viewingAllPets ? 'all' : `matched?clerkUserId=${user.id}`;
-            const response = await fetch(`http://localhost:5001/api/pets/${endpoint}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
-  
-            if (!response.ok) {
-                throw new Error(`Failed to fetch ${viewingAllPets ? 'all' : 'matched'} pets`);
-            }
-  
-            const data = await response.json();
-            setPets(data);
+          const token = await getToken();
+          const endpoint = viewingAllPets ? 'with-status' : `matched?clerkUserId=${user.id}`;
+          const response = await fetch(`http://localhost:5001/api/pets/${endpoint}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+      
+          if (!response.ok) {
+            throw new Error(`Failed to fetch ${viewingAllPets ? 'all' : 'matched'} pets`);
+          }
+      
+          const data = await response.json();
+          setPets(data);
         } catch (err) {
-            console.error(`Error in fetch${viewingAllPets ? 'All' : 'Matched'}Pets:`, err);
-            setError(err.message);
+          console.error(`Error in fetch${viewingAllPets ? 'All' : 'Matched'}Pets:`, err);
+          setError(err.message);
         } finally {
-            setLoading(false);
+          setLoading(false);
         }
     };
 
@@ -223,6 +223,12 @@ function PetsPage() {
                                 <div key={pet.pet_id} className="pet-card" onClick={() => openPetDialog(pet)}>
                                     <div className="pet-img">
                                         <img src={pet.image1 && pet.image1.length > 0 ? pet.image1 : blankImg} alt={pet.name}/>
+                                        {pet.has_pending_request && (
+                                            <div className="pending-badge">
+                                                <span>⏳</span>
+                                                Pending Adoption
+                                            </div>
+                                        )}
                                         <h2 className="pet-name">{pet.name}</h2>
                                     </div>
                                     <div className="pet-desc">
@@ -296,15 +302,15 @@ function PetsPage() {
                                 )
                             }
                         </div>
-                            <div className="section">
-                                <h3>Medical History</h3>
+                        <div className="section">
+                            <h3>Medical History</h3>
                             {selectedPet.medical_history ? (
                                 <p>{selectedPet.medical_history}</p>
                                 ) : (
                                     <p>No medical history available.</p>
                                 )
                             }
-                            </div>
+                        </div>
                         <img src={selectedPet.image1 && selectedPet.image1.length > 0 ? selectedPet.image1 : blankImg} alt={selectedPet.name} />
                         {requestStatus ? (
                             <div className={`requested ${requestStatus.toLowerCase()}`}>{requestStatus} Request</div>
