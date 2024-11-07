@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '@clerk/clerk-react';
-import { PlusCircle, MessageCircle, ListChecks, BarChart3, Users, PawPrint } from 'lucide-react';
+import { MessageCircle, ListChecks, BarChart3, PawPrint, RotateCw } from 'lucide-react';
 import '../styles/adminPortal.scss';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-
+import { supabase } from './supabaseClient';
 
 function AdminPortal() {
   const { user } = useUser();
@@ -36,17 +36,7 @@ function AdminPortal() {
     image1: 'https://i.pinimg.com/originals/22/1c/20/221c2021c91d60b1eb13ea676460a92c.png'
   });
 
-  const [applications, setApplications] = useState([
-    {
-      id: 1,
-      applicantName: "Graz",
-      petName: "Rex",
-      status: "Pending",
-      date: "2024-03-01",
-      quizResults: "85% match",
-      message: "I would love to adopt this adorable dog."
-    }
-  ]);
+  const [applications, setApplications] = useState([]);
 
   const [messages, setMessages] = useState([
     {
@@ -83,6 +73,45 @@ function AdminPortal() {
       fetchExistingPets();
     }
   }, [isAdmin]);
+
+  const fetchApplications = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('AdoptionRequests')
+        .select(`
+          request_id,
+          clerk_user_id,
+          clerk_user_name,
+          pet_id,
+          pet_name,
+          quiz_match_score,
+          timestamp,
+          status
+        `);
+
+      if (error) throw error;
+
+      // Transform the data if needed, e.g., reformat dates or calculate percentages.
+      const formattedData = data.map(request => ({
+        id: request.request_id,
+        applicantID: request.clerk_user_id,
+        applicantName: request.clerk_user_name,
+        petID: request.pet_id,
+        petName: request.pet_name,
+        quizScore: request.quiz_match_score,
+        date: new Date(request.timestamp).toString(),
+        status: request.status,
+      }));
+
+      setApplications(formattedData);
+    } catch (error) {
+      console.error("Error fetching adoption requests:", error.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchApplications();
+  }, []);
 
   useEffect(() => {
     const fetchListingStats = async () => {
@@ -298,6 +327,30 @@ function AdminPortal() {
     setShowNewPetForm(false);
   };
 
+  const handleRequestAction = async (requestId, petID, newStatus) => {
+    try {
+      const { data, error } = await supabase
+        .from('AdoptionRequests')
+        .update( { status: newStatus })
+        .eq('request_id', requestId);  
+  
+      if (error) throw error;
+      if(newStatus === 'Accepted') {
+        const { data: petData, error: petError } = await supabase
+          .from('Pets')
+          .update({ is_available: "FALSE" })
+          .match({ pet_id: petID }); 
+
+        if (petError) throw petError;
+      }
+      setSuccessMessage('Successful');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (error) {
+      console.error('Error with request:', error);
+      setSuccessMessage('Error: Failed to process request');
+    }
+  };
+
   const renderApplications = () => (
     <div className="content-section">
       <div className="section-header">
@@ -306,30 +359,48 @@ function AdminPortal() {
           <select defaultValue="all">
             <option value="all">All Applications</option>
             <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
+            <option value="accepted">Accepted</option>
+            <option value="declined">Declined</option>
           </select>
         </div>
       </div>
       <div className="applications-list">
-        {applications.map(app => (
-          <div key={app.id} className="application-card">
-            <div className="application-header">
-              <h3>{app.applicantName}'s Application for {app.petName}</h3>
-              <span className={`status ${app.status.toLowerCase()}`}>{app.status}</span>
+        <button className="refreshBtn" onClick={() => fetchApplications()}>
+          <RotateCw size={20} />
+          Refresh Requests
+        </button>
+        {applications.length > 0 ? (
+          applications.map(app => (
+            <div key={app.id} className="application-card">
+              <div className="application-header">
+                <h3>{app.applicantName}'s Adoption Request for {app.petName}</h3>
+                <span className={`status ${app.status.toLowerCase()}`}>{app.status}</span>
+              </div>
+              <div className="application-details">
+                <p><strong>User ID:</strong> {app.applicantID}</p>
+                <p><strong>Timestamp:</strong> {app.date}</p>
+                <p><strong>Pet ID:</strong> {app.petID}</p>
+                <p><strong>Pet Quiz Match:</strong> {app.quizScore}%</p>
+              </div>
+              {app.status === "Pending" && (
+                <div className="application-actions">
+                  <button className="approve-btn" onClick={() => {
+                    if (window.confirm('Are you sure you want to accept this request?')) {
+                      app.status = "Accepted";
+                      handleRequestAction(app.id, app.petID, app.status);
+                    }
+                  }}>Accept</button>
+                  <button className="reject-btn" onClick={() => {
+                    if (window.confirm('Are you sure you want to decline this request?')) {
+                      app.status = "Declined";
+                      handleRequestAction(app.id, app.petID, app.status);
+                    }
+                  }}>Decline</button>
+                </div>
+              )}
             </div>
-            <div className="application-details">
-              <p><strong>Date:</strong> {app.date}</p>
-              <p><strong>Quiz Match:</strong> {app.quizResults}</p>
-              <p><strong>Message:</strong> {app.message}</p>
-            </div>
-            <div className="application-actions">
-              <button className="approve-btn">Approve</button>
-              <button className="reject-btn">Reject</button>
-              <button className="message-btn">Message</button>
-            </div>
-          </div>
-        ))}
+          )) ) : (<p>There are no current pet adoption requests.</p>)
+        }
       </div>
     </div>
   );
@@ -517,7 +588,7 @@ function AdminPortal() {
               setEditingPet(null);
             }}
           >
-            Add New Pet
+            Add New
           </button>
           <button 
             className={`edit-pets-btn ${!showNewPetForm ? 'active' : ''}`}
@@ -526,7 +597,7 @@ function AdminPortal() {
               setEditingPet(null);
             }}
           >
-            Edit Existing Listings
+            Edit Existing
           </button>
         </div>
       </div>
@@ -543,6 +614,10 @@ function AdminPortal() {
           </div>
         ) : (
           <div className="existing-pets-section">
+            <button className="refreshBtn" onClick={() => fetchExistingPets()}>
+              <RotateCw size={20} />
+              Refresh Pets
+            </button>
             <h3>Edit Existing Pets</h3>
             {editingPet ? (
               <div className="edit-form-container">
@@ -559,6 +634,7 @@ function AdminPortal() {
                     />
                     <div className="pet-info">
                       <h4>{pet.name}</h4>
+                      <p>ID: {pet.pet_id}</p>
                       <p>{pet.breed} | {pet.sex}</p>
                       <p>{pet.age} old</p>
                       {pet.is_available ? (

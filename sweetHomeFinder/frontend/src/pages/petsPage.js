@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useUser, useAuth } from '@clerk/clerk-react';
+import { supabase } from './supabaseClient';
+import { PawPrint, RotateCw } from 'lucide-react';
+
 import '../styles/petsPage.scss';
 
 function PetsPage() {
@@ -17,6 +20,8 @@ function PetsPage() {
         age: []
     });
     const [selectedPet, setSelectedPet] = useState(null); // New state for selected pet
+    const [openRequests, setOpenRequests] = useState(false); // New state for requests dialog
+    const [applications, setApplications] = useState([]); // Track user's adoption requests
   
     useEffect(() => {
         if (isLoaded && isSignedIn) {
@@ -47,6 +52,39 @@ function PetsPage() {
             setError(err.message);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const sendRequest = async () => {
+
+        if (!user || !selectedPet) return;
+
+        try {
+            const { data, error } = await supabase
+                .from('AdoptionRequests')
+                .insert([
+                    {
+                        clerk_user_id: user.id,
+                        clerk_user_name: user.username,
+                        pet_id: selectedPet.pet_id,
+                        pet_name: selectedPet.name,
+                        quiz_match_score: selectedPet.match_score || 0,
+                        timestamp: new Date(),
+                        status: "Pending",
+                    },
+                ]);
+                fetchApplications();
+
+            if (error) {
+                console.error('Error inserting data:', error);
+                alert('Failed to send adoption request. Please try again.');
+            } else {
+                // Add pet_id to requestedPets after successful request
+                console.log('Request sent successfully:', data);
+                alert('Adoption request submitted successfully!');
+            }
+        } catch (error) {
+            console.error('Unexpected error:', error);
         }
     };
   
@@ -80,12 +118,54 @@ function PetsPage() {
 
     const openPetDialog = (pet) => {
         setSelectedPet(pet);
+        fetchApplications();
         console.log("Selected pet: " + pet.name);
     };
 
     const closePetDialog = () => {
         setSelectedPet(null);
     };
+
+    const toggleAdoptionDialog = () => {
+        if(!openRequests) {
+            fetchApplications();
+        }
+        setOpenRequests(!openRequests);
+    }
+
+    const fetchApplications = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('AdoptionRequests')
+            .select(`
+              pet_id,
+              pet_name,
+              quiz_match_score,
+              timestamp,
+              status
+            `)
+            .eq('clerk_user_id', user.id);
+    
+          if (error) throw error;
+    
+          // Formats the data
+          const formattedData = data.map(request => ({
+            petID: request.pet_id,
+            petName: request.pet_name,
+            quizScore: request.quiz_match_score,
+            date: new Date(request.timestamp).toString(),
+            status: request.status,
+          }));
+    
+          setApplications(formattedData);
+        } catch (error) {
+          console.error("Error fetching adoption requests:", error.message);
+        }
+    };
+    
+    useEffect(() => {
+        fetchApplications();
+    }, []);
 
     if (!isLoaded || loading) {
         return <div className="pets-page">Loading...</div>;
@@ -112,13 +192,27 @@ function PetsPage() {
         energy_level: ['low_energy', 'moderate_energy', 'high_energy'],
         age: ['0-2', '3-7', '8+']
     };
+
+    function getRequestStatus(pet_id) {
+        const reqExists = applications.find(application => application.petID == pet_id);
+        if(reqExists) {
+            return reqExists.status;
+        }
+    }
+
+    const requestStatus = selectedPet ? getRequestStatus(selectedPet.pet_id) : null;
   
     return (
         <div className="pets-page">
             <h1 className="title">{viewingAllPets ? 'All Available Pets' : '🏅Your Top 5 Matches🏅'}</h1>
-            <h2 className="allPets" onClick={toggleViewAllPets}>
-                {viewingAllPets ? 'View your matches' : 'View all pets'}
-            </h2>
+            <div className="btns">
+                <h2 className="btn" onClick={toggleViewAllPets}>
+                    {viewingAllPets ? 'View your matches' : 'View all pets'}
+                </h2>
+                <h2 className="btn" onClick={toggleAdoptionDialog}>
+                    View Requests
+                </h2>
+            </div>
             <div className="pets-container">
                 <div className="pets-list">
                     {pets.filter(filterPets).length === 0 ? (
@@ -171,14 +265,13 @@ function PetsPage() {
                     </div>
                 )}
             </div>
-
             {selectedPet && (
                 <div className="modal">
                     <div className="modal-content">
                         <span className="close" onClick={closePetDialog}>&times;</span>
                         <div className="nameAndBreed">
                             <h2>{selectedPet.name}</h2>
-                            <p>{selectedPet.breed} {selectedPet.type} | {selectedPet.sex} </p>
+                            <p>ID# {selectedPet.pet_id} | {selectedPet.breed} {selectedPet.type} | {selectedPet.sex} </p>
                         </div>
                         <div className="info">
                             <div className="category">
@@ -213,7 +306,42 @@ function PetsPage() {
                             }
                             </div>
                         <img src={selectedPet.image1 && selectedPet.image1.length > 0 ? selectedPet.image1 : blankImg} alt={selectedPet.name} />
-                        <div className="inquiryBtn">Request to Adopt</div>
+                        {requestStatus ? (
+                            <div className={`requested ${requestStatus.toLowerCase()}`}>{requestStatus} Request</div>
+                        ) : (
+                            <div className='inquiryBtn' onClick={sendRequest}>Request to Adopt</div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+
+            {openRequests && (
+                <div className="modal">
+                    <div className="modal-content">
+                        <span className="close" onClick={toggleAdoptionDialog}>&times;</span>
+                        <h2>Your Adoption Requests</h2>
+                        <div className="applications-list">
+                            <button className="refreshBtn" onClick={() => fetchApplications()}>
+                            <RotateCw size={20} />
+                            Refresh Requests
+                            </button>
+                            {applications.length > 0 ? (
+                                applications.map(app => (
+                                    <div className="application-card">
+                                        <div className="application-header">
+                                            <h3>Adoption Request for {app.petName}</h3>
+                                            <span className={`status ${app.status.toLowerCase()}`}>{app.status}</span>
+                                        </div>
+                                        <div className="application-details">
+                                            <p><strong>Timestamp:</strong> {app.date}</p>
+                                            <p><strong>Pet ID#:</strong> {app.petID}</p>
+                                            <p><strong>Pet Quiz Match:</strong> {app.quizScore}%</p>
+                                        </div>
+                                    </div>
+                                )) ) : (<p>There are no current pet adoption requests.</p>)
+                            }
+                        </div>
                     </div>
                 </div>
             )}
