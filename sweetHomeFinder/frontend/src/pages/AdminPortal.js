@@ -87,7 +87,8 @@ function AdminPortal() {
           quiz_match_score,
           timestamp,
           status
-        `);
+        `)
+        .order('timestamp', { ascending: false });
 
       if (error) throw error;
 

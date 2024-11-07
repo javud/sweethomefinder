@@ -144,7 +144,8 @@ function PetsPage() {
               timestamp,
               status
             `)
-            .eq('clerk_user_id', user.id);
+            .eq('clerk_user_id', user.id)
+            .order('timestamp', { ascending: false });
     
           if (error) throw error;
     
