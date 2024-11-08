@@ -222,11 +222,13 @@ function AdminPortal() {
 
   const fetchExistingPets = async () => {
     try {
+      setSending('Fetching...');
       const response = await fetch('http://localhost:5001/api/pets/admin');
       if (response.ok) {
         const data = await response.json();
         setExistingPets(data);
       }
+      setSending('');
     } catch (error) {
       console.error('Error fetching existing pets:', error);
     }
@@ -402,7 +404,7 @@ function AdminPortal() {
     setShowNewPetForm(false);
   };
 
-  const handleRequestAction = async (requestId, petID, newStatus) => {
+  const handleRequestAction = async (requestId, userID, userName, petID, petName, newStatus) => {
     try {
       const { data, error } = await supabase
         .from('AdoptionRequests')
@@ -416,7 +418,33 @@ function AdminPortal() {
           .update({ is_available: "FALSE" })
           .match({ pet_id: petID }); 
 
+          const { data, error } = await supabase
+            .from('Msg')
+            .insert([
+                {
+                    clerk_user_id: userID,
+                    clerk_user_name: userName,
+                    content: `Good news! Your application for ${petName} was accepted!`,
+                    timestamp: new Date(),
+                    from_user: 0,
+                },
+          ]);
+
         if (petError) throw petError;
+      }
+      else if(newStatus == 'Declined') {
+        const { data, error } = await supabase
+            .from('Msg')
+            .insert([
+                {
+                    clerk_user_id: userID,
+                    clerk_user_name: userName,
+                    content: `Sad news. Unfortunately your application for ${petName} was declined.`,
+                    timestamp: new Date(),
+                    from_user: 0,
+                },
+          ]);
+        if (error) throw error;
       }
       setSuccessMessage('Successful');
       setTimeout(() => setSuccessMessage(''), 3000);
@@ -465,13 +493,13 @@ function AdminPortal() {
                   <button className="approve-btn" onClick={() => {
                     if (window.confirm('Are you sure you want to accept this request?')) {
                       app.status = "Accepted";
-                      handleRequestAction(app.id, app.petID, app.status);
+                      handleRequestAction(app.id, app.applicantID, app.applicantName, app.petID, app.petName, app.status);
                     }
                   }}>Accept</button>
                   <button className="reject-btn" onClick={() => {
                     if (window.confirm('Are you sure you want to decline this request?')) {
                       app.status = "Declined";
-                      handleRequestAction(app.id, app.petID, app.status);
+                      handleRequestAction(app.id, app.applicantID, app.applicantName, app.petID, app.petName, app.status);
                     }
                   }}>Decline</button>
                 </div>
@@ -692,10 +720,13 @@ function AdminPortal() {
           </div>
         ) : (
           <div className="existing-pets-section">
-            <button className="refreshBtn" onClick={() => fetchExistingPets()}>
-              <RotateCw size={20} />
-              Refresh Pets
-            </button>
+            <div className="statusDiv">
+                <button className="refreshBtn" onClick={() => fetchExistingPets()}>
+                <RotateCw size={20} />
+                Refresh Pet Listings
+                </button>
+                <p>{sending}</p>
+            </div>
             <h3>Edit Existing Pets</h3>
             {editingPet ? (
               <div className="edit-form-container">
@@ -816,7 +847,7 @@ function AdminPortal() {
         <div className="statusDiv">
             <button className="refreshBtn" onClick={() => fetchMessages()}>
             <RotateCw size={20} />
-            Refresh Requests
+            Refresh Messages
             </button>
             <p>{sending}</p>
         </div>
@@ -879,21 +910,21 @@ function AdminPortal() {
         <nav className="admin-nav">
           <button 
             className={`nav-item ${activeSection === 'applications' ? 'active' : ''}`}
-            onClick={() => setActiveSection('applications')}
+            onClick={() => {setActiveSection('applications'); fetchApplications();}}
           >
             <ListChecks size={20} />
             Applications
           </button>
           <button 
             className={`nav-item ${activeSection === 'pets' ? 'active' : ''}`}
-            onClick={() => setActiveSection('pets')}
+            onClick={() => {setActiveSection('pets'); fetchExistingPets();}}
           >
             <PawPrint size={20} />
             Pet Management
           </button>
           <button 
             className={`nav-item ${activeSection === 'messages' ? 'active' : ''}`}
-            onClick={() => setActiveSection('messages')}
+            onClick={() => {setActiveSection('messages'); fetchMessages();}}
           >
             <MessageCircle size={20} />
             Messages
