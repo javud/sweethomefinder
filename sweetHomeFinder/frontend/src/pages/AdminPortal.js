@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '@clerk/clerk-react';
-import { MessageCircle, ListChecks, BarChart3, PawPrint, RotateCw } from 'lucide-react';
+import { MessageCircle, ListChecks, BarChart3, PawPrint, RotateCw, SendHorizonal, ArrowUpFromDot, ArrowDownToDot } from 'lucide-react';
 import '../styles/adminPortal.scss';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { supabase } from './supabaseClient';
@@ -18,7 +18,7 @@ function AdminPortal() {
   const [editingPet, setEditingPet] = useState(null);
   const [listingStats, setListingStats] = useState([]);
   const [analyticsData, setAnalyticsData] = useState({ monthlyStats: [], totalListings: 0 });
-
+  const [sending, setSending] = useState(false);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -38,15 +38,17 @@ function AdminPortal() {
 
   const [applications, setApplications] = useState([]);
 
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      from: "Graz",
-      subject: "Question about Rex",
-      date: "2024-03-01",
-      unread: true
-    }
-  ]);
+  const [messages, setMessages] = useState([]);
+
+  const [replyContent, setReplyContent] = useState({}); // Track reply for each message
+
+  // Update reply content based on message ID
+  const handleReplyChange = (msgID, value) => {
+      setReplyContent(prev => ({
+          ...prev,
+          [msgID]: value
+      }));
+  };
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -74,7 +76,12 @@ function AdminPortal() {
     }
   }, [isAdmin]);
 
+  const toggleSending = (status) => {
+      setSending(status);
+  }
+
   const fetchApplications = async () => {
+    setSending('Fetching...');
     try {
       const { data, error } = await supabase
         .from('AdoptionRequests')
@@ -105,6 +112,7 @@ function AdminPortal() {
       }));
 
       setApplications(formattedData);
+      setSending('');
     } catch (error) {
       console.error("Error fetching adoption requests:", error.message);
     }
@@ -113,6 +121,72 @@ function AdminPortal() {
   useEffect(() => {
     fetchApplications();
   }, []);
+
+  const fetchMessages = async () => {
+    setSending('Fetching...');
+    try {
+      const { data, error } = await supabase
+        .from('Msg')
+        .select(`
+          msg_id,
+          clerk_user_id,
+          clerk_user_name,
+          content,
+          timestamp,
+          from_user
+        `)
+        .order('timestamp', { ascending: false });
+      if (error) throw error;
+    
+      data.forEach(item => item.time = new Date(item.timestamp).toLocaleString());
+
+      setMessages(data);
+      setSending('');
+    } catch (error) {
+      console.error("Error fetching messages", error.message);
+    }
+  };
+
+  useEffect(() => {
+      fetchMessages();
+  }, []);
+
+  function handleKeyDown(e, userID, userName, msgID) {
+    if (e.key === 'Enter') {
+      sendMessage(userID, userName, msgID);
+    }
+  };
+
+  const sendMessage = async (userID, userName, msgID) => {
+    setSending('Sending...');
+    const msgContent = replyContent[msgID];
+
+    if (!user || !msgContent) return;
+    try {
+        const { data, error } = await supabase
+            .from('Msg')
+            .insert([
+                {
+                    clerk_user_id: userID,
+                    clerk_user_name: userName,
+                    content: msgContent,
+                    timestamp: new Date(),
+                    from_user: 0,
+                },
+            ]);
+            fetchMessages();
+        if (error) {
+            console.error('Error inserting data:', error);
+            alert('Failed to send message. Please try again.');
+        } else {
+            console.log('Message sent successfully:', data);
+            setReplyContent(prev => ({ ...prev, [msgID]: '' })); // Clear input
+            setSending('');
+        }
+    } catch (error) {
+        console.error('Unexpected error:', error);
+    } 
+  };
 
   useEffect(() => {
     const fetchListingStats = async () => {
@@ -366,10 +440,13 @@ function AdminPortal() {
         </div>
       </div>
       <div className="applications-list">
-        <button className="refreshBtn" onClick={() => fetchApplications()}>
-          <RotateCw size={20} />
-          Refresh Requests
-        </button>
+        <div className="statusDiv">
+            <button className="refreshBtn" onClick={() => fetchApplications()}>
+            <RotateCw size={20} />
+            Refresh Requests
+            </button>
+            <p>{sending}</p>
+        </div>
         {applications.length > 0 ? (
           applications.map(app => (
             <div key={app.id} className="application-card">
@@ -735,20 +812,47 @@ function AdminPortal() {
       <div className="section-header">
         <h2>Messages</h2>
       </div>
-      <div className="messages-list">
-        {messages.map(message => (
-          <div key={message.id} className={`message-card ${message.unread ? 'unread' : ''}`}>
-            <div className="message-info">
-              <h3>{message.from}</h3>
-              <p>{message.subject}</p>
-              <span className="date">{message.date}</span>
-            </div>
-            <div className="message-actions">
-              <button className="reply-btn">Reply</button>
-              <button className="view-btn">View</button>
-            </div>
-          </div>
-        ))}
+      <div className="applications-list">
+        <div className="statusDiv">
+            <button className="refreshBtn" onClick={() => fetchMessages()}>
+            <RotateCw size={20} />
+            Refresh Requests
+            </button>
+            <p>{sending}</p>
+        </div>
+          {messages.length > 0 ? (
+              messages.map(msg => (
+                  <div className="application-card">
+                      <div className="application-header">
+                          {msg.from_user == true ? (
+                              <h3 className='incoming'>
+                                  <ArrowDownToDot size={20} />
+                                  {msg.clerk_user_name} to HomeSweetHome
+                              </h3>
+                          ) : (
+                              <h3 className='outgoing'>
+                                  <ArrowUpFromDot size={20} />
+                                  HomeSweetHome to {msg.clerk_user_name}
+                              </h3>
+                          )}
+                          <p>{msg.time}</p>
+                      </div>
+                      <div className="application-details">
+                          <p><strong>userID:</strong> {msg.clerk_user_id}</p>
+                          <p><strong>message:</strong> {msg.content}</p>
+                      </div>
+                      {msg.from_user && (
+                        <div className="newMsg">
+                            <input type="text" class="msgBox" placeholder="New message" value={replyContent[msg.msg_id] || ''} 
+                                    onChange={(e) => handleReplyChange(msg.msg_id, e.target.value)} onKeyDown={(e) => handleKeyDown(e, msg.clerk_user_id, msg.clerk_user_name, msg.msg_id)} />
+                            <div className="sendMsg" onClick={() => sendMessage(msg.clerk_user_id, msg.clerk_user_name, msg.msg_id)}>
+                                <SendHorizonal />
+                            </div>
+                        </div>
+                      )}
+                  </div>
+              )) ) : (<p>You don't have any messages.</p>)
+          }
       </div>
     </div>
   );

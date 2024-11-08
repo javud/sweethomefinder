@@ -19,6 +19,7 @@ const fetchClerkUsers = async () => {
 };
 
 const syncUsers = async () => {
+  /*
   try {
     const pool = await connectDB(); // Ensure a connection is established here
     const clerkUsers = await fetchClerkUsers();
@@ -40,7 +41,7 @@ const syncUsers = async () => {
     console.log('User synchronization complete.');
   } catch (error) {
     console.error('Error during user synchronization:', error);
-  } 
+  } */
 };
 
 module.exports = syncUsers;

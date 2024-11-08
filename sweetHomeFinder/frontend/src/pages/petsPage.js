@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useUser, useAuth } from '@clerk/clerk-react';
 import { supabase } from './supabaseClient';
-import { PawPrint, RotateCw } from 'lucide-react';
+import { PawPrint, RotateCw, MessageSquare, ShoppingCart, ArrowUpFromDot, ArrowDownToDot, ArrowUp, SendHorizonal } from 'lucide-react';
 
 import '../styles/petsPage.scss';
 
@@ -22,6 +22,10 @@ function PetsPage() {
     const [selectedPet, setSelectedPet] = useState(null); // New state for selected pet
     const [openRequests, setOpenRequests] = useState(false); // New state for requests dialog
     const [applications, setApplications] = useState([]); // Track user's adoption requests
+    const [openMessages, setOpenMessages] = useState(false); // New state for msgs dialog
+    const [messages, setMessages] = useState([]); // Track user's messages
+    const [message, setMessage] = useState('');
+    const [sending, setSending] = useState(false);
   
     useEffect(() => {
         if (isLoaded && isSignedIn) {
@@ -87,6 +91,38 @@ function PetsPage() {
             console.error('Unexpected error:', error);
         }
     };
+
+    const sendMessage = async () => {
+
+        if (!user || !message) return;
+
+        try {
+            setSending('Sending...');
+            setMessage('');
+            const { data, error } = await supabase
+                .from('Msg')
+                .insert([
+                    {
+                        clerk_user_id: user.id,
+                        clerk_user_name: user.username,
+                        content: message,
+                        timestamp: new Date(),
+                        from_user: 1,
+                    },
+                ]);
+                fetchMessages();
+                setSending('');
+            if (error) {
+                console.error('Error inserting data:', error);
+                alert('Failed to send message. Please try again.');
+            } else {
+                // Add pet_id to requestedPets after successful request
+                console.log('Message sent successfully:', data);
+            }
+        } catch (error) {
+            console.error('Unexpected error:', error);
+        }
+    };
   
     const toggleViewAllPets = () => {
         setViewingAllPets(!viewingAllPets);
@@ -133,8 +169,20 @@ function PetsPage() {
         setOpenRequests(!openRequests);
     }
 
+    const toggleMessageDialog = () => {
+        if(!openMessages) {
+            fetchMessages();
+        }
+        setOpenMessages(!openMessages);
+    }
+
+    const toggleSending = (status) => {
+        setSending(status);
+    }
+
     const fetchApplications = async () => {
         try {
+          setSending('Fetching...');
           const { data, error } = await supabase
             .from('AdoptionRequests')
             .select(`
@@ -146,7 +194,7 @@ function PetsPage() {
             `)
             .eq('clerk_user_id', user.id)
             .order('timestamp', { ascending: false });
-    
+          setSending('');
           if (error) throw error;
     
           // Formats the data
@@ -154,7 +202,7 @@ function PetsPage() {
             petID: request.pet_id,
             petName: request.pet_name,
             quizScore: request.quiz_match_score,
-            date: new Date(request.timestamp).toString(),
+            date: new Date(request.timestamp).toLocaleString(),
             status: request.status,
           }));
     
@@ -166,6 +214,36 @@ function PetsPage() {
     
     useEffect(() => {
         fetchApplications();
+    }, []);
+
+    const fetchMessages = async () => {
+        try {
+          setSending('Fetching...');
+          const { data, error } = await supabase
+            .from('Msg')
+            .select(`
+              msg_id,
+              clerk_user_id,
+              clerk_user_name,
+              content,
+              timestamp,
+              from_user
+            `)
+            .eq('clerk_user_id', user.id)
+            .order('timestamp', { ascending: false });
+          setSending('');
+          if (error) throw error;
+        
+          data.forEach(item => item.time = new Date(item.timestamp).toLocaleString());
+    
+          setMessages(data);
+        } catch (error) {
+          console.error("Error fetching messages", error.message);
+        }
+    };
+    
+    useEffect(() => {
+        fetchMessages();
     }, []);
 
     if (!isLoaded || loading) {
@@ -201,6 +279,12 @@ function PetsPage() {
         }
     }
 
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    };
+
     const requestStatus = selectedPet ? getRequestStatus(selectedPet.pet_id) : null;
   
     return (
@@ -208,10 +292,16 @@ function PetsPage() {
             <h1 className="title">{viewingAllPets ? 'All Available Pets' : '🏅Your Top 5 Matches🏅'}</h1>
             <div className="btns">
                 <h2 className="btn" onClick={toggleViewAllPets}>
+                    <PawPrint size={20} />
                     {viewingAllPets ? 'View your matches' : 'View all pets'}
                 </h2>
                 <h2 className="btn" onClick={toggleAdoptionDialog}>
+                    <ShoppingCart size={20} />
                     View Requests
+                </h2>
+                <h2 className="btn" onClick={toggleMessageDialog}>
+                    <MessageSquare size={20} />
+                    Messages
                 </h2>
             </div>
             <div className="pets-container">
@@ -325,14 +415,17 @@ function PetsPage() {
 
             {openRequests && (
                 <div className="modal">
-                    <div className="modal-content">
+                    <div className="modal-content requests">
                         <span className="close" onClick={toggleAdoptionDialog}>&times;</span>
                         <h2>Your Adoption Requests</h2>
                         <div className="applications-list">
-                            <button className="refreshBtn" onClick={() => fetchApplications()}>
-                            <RotateCw size={20} />
-                            Refresh Requests
-                            </button>
+                            <div className="statusDiv">
+                                <button className="refreshBtn" onClick={() => fetchApplications()}>
+                                <RotateCw size={20} />
+                                Refresh Requests
+                                </button>
+                                <p>{sending}</p>
+                            </div>
                             {applications.length > 0 ? (
                                 applications.map(app => (
                                     <div className="application-card">
@@ -347,6 +440,53 @@ function PetsPage() {
                                         </div>
                                     </div>
                                 )) ) : (<p>There are no current pet adoption requests.</p>)
+                            }
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {openMessages && (
+                <div className="modal">
+                    <div className="modal-content messages">
+                        <span className="close" onClick={toggleMessageDialog}>&times;</span>
+                        <h2>Your Messages</h2>
+                        <div className="applications-list">
+                            <div className="statusDiv">
+                                <button className="refreshBtn" onClick={() => fetchMessages()}>
+                                <RotateCw size={20} />
+                                Refresh Messages
+                                </button>
+                                <p>{sending}</p>
+                            </div>
+                            <div className="newMsg">
+                                <input type="text" class="msgBox" placeholder="New message" value={message} onChange={(e) => setMessage(e.target.value)} onKeyDown={handleKeyDown} />
+                                <div className={`sendMsg ${!message > 0 && ('unready')}`} onClick={sendMessage}>
+                                    <SendHorizonal />
+                                </div>
+                            </div>
+                            {messages.length > 0 ? (
+                                messages.map(msg => (
+                                    <div className="application-card">
+                                        <div className="application-header">
+                                            {msg.from_user == true ? (
+                                                <h3 className='outgoing'>
+                                                    <ArrowUpFromDot size={20} />
+                                                    You to HomeSweetHome
+                                                </h3>
+                                            ) : (
+                                                <h3 className='incoming'>
+                                                    <ArrowDownToDot size={20} />
+                                                    HomeSweetHome to you
+                                                </h3>
+                                            )}
+                                            <p>{msg.time}</p>
+                                        </div>
+                                        <div className="application-details">
+                                            <p>{msg.content}</p>
+                                        </div>
+                                    </div>
+                                )) ) : (<p>You don't have any messages.</p>)
                             }
                         </div>
                     </div>
