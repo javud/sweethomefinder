@@ -19,6 +19,9 @@ function AdminPortal() {
   const [listingStats, setListingStats] = useState([]);
   const [analyticsData, setAnalyticsData] = useState({ monthlyStats: [], totalListings: 0 });
   const [sending, setSending] = useState(false);
+  const [selectedConversation, setSelectedConversation] = useState(null);
+  const [conversationMessages, setConversationMessages] = useState([]);
+  const [showingConversation, setShowingConversation] = useState(false);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -838,55 +841,196 @@ function AdminPortal() {
     </div>
   );
 
-  const renderMessages = () => (
-    <div className="content-section">
-      <div className="section-header">
-        <h2>Messages</h2>
-      </div>
-      <div className="applications-list">
-        <div className="statusDiv">
-            <button className="refreshBtn" onClick={() => fetchMessages()}>
-            <RotateCw size={20} />
-            Refresh Messages
+  const renderMessages = () => {
+  
+    const fetchLatestMessages = async () => {
+      setSending('Fetching...');
+      try {
+        const { data, error } = await supabase
+          .from('Msg')
+          .select('*')
+          .order('timestamp', { ascending: false });
+        
+        if (error) throw error;
+    
+        // Create a map to store the latest message for each unique user
+        const userMessages = new Map();
+        
+        data.forEach(message => {
+          // Only store the first (latest) message for each user
+          if (!userMessages.has(message.clerk_user_name)) {
+            message.time = new Date(message.timestamp).toLocaleString();
+            userMessages.set(message.clerk_user_name, message);
+          }
+        });
+    
+        // Convert map values to array
+        const latestMessages = Array.from(userMessages.values());
+        setMessages(latestMessages);
+        setSending('');
+      } catch (error) {
+        console.error("Error fetching messages", error);
+        setSending('');
+      }
+    };
+    
+    const sendMessage = async (userID, userName, msgID) => {
+      setSending('Sending...');
+      const msgContent = replyContent[selectedConversation];
+    
+      if (!user || !msgContent) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('Msg')
+          .insert([
+            {
+              clerk_user_id: userID,
+              clerk_user_name: userName,
+              content: msgContent,
+              timestamp: new Date(),
+              from_user: 0,
+            },
+          ]);
+    
+        if (error) {
+          throw error;
+        }
+    
+        // Clear the input field
+        setReplyContent(prev => ({ ...prev, [selectedConversation]: '' }));
+        
+        // Refresh the conversation to show the new message
+        await fetchConversation(userID);
+        
+        setSending('');
+      } catch (error) {
+        console.error('Error sending message:', error);
+        alert('Failed to send message. Please try again.');
+        setSending('');
+      }
+    };
+  
+    const fetchConversation = async (userId) => {
+      setSending('Fetching conversation...');
+      try {
+        const { data, error } = await supabase
+          .from('Msg')
+          .select('*')
+          .eq('clerk_user_id', userId)
+          .order('timestamp', { ascending: true });
+  
+        if (error) throw error;
+        data.forEach(item => item.time = new Date(item.timestamp).toLocaleString());
+        setConversationMessages(data);
+        setSelectedConversation(userId);
+        setShowingConversation(true);
+        setSending('');
+      } catch (error) {
+        console.error("Error fetching conversation", error);
+        setSending('');
+      }
+    };
+  
+    return (
+      <div className="content-section">
+        <div className="section-header">
+          <h2>Messages</h2>
+          {showingConversation && (
+            <button 
+              className="back-button" 
+              onClick={() => {
+                setShowingConversation(false);
+                setSelectedConversation(null);
+              }}
+            >
+              Back to All Messages
+            </button>
+          )}
+        </div>
+        <div className="applications-list">
+          <div className="statusDiv">
+            <button className="refreshBtn" onClick={() => showingConversation ? fetchConversation(selectedConversation) : fetchLatestMessages()}>
+              <RotateCw size={20} />
+              Refresh Messages
             </button>
             <p>{sending}</p>
-        </div>
-          {messages.length > 0 ? (
+          </div>
+  
+          {!showingConversation ? (
+            // Latest messages view
+            messages.length > 0 ? (
               messages.map(msg => (
-                  <div className="application-card">
-                      <div className="application-header">
-                          {msg.from_user == true ? (
-                              <h3 className='incoming'>
-                                  <ArrowDownToDot size={20} />
-                                  {msg.clerk_user_name} to HomeSweetHome
-                              </h3>
-                          ) : (
-                              <h3 className='outgoing'>
-                                  <ArrowUpFromDot size={20} />
-                                  HomeSweetHome to {msg.clerk_user_name}
-                              </h3>
-                          )}
-                          <p>{msg.time}</p>
-                      </div>
-                      <div className="application-details">
-                          <p><strong>userID:</strong> {msg.clerk_user_id}</p>
-                          <p><strong>message:</strong> {msg.content}</p>
-                      </div>
-                      {msg.from_user && (
-                        <div className="newMsg">
-                            <input type="text" class="msgBox" placeholder="New message" value={replyContent[msg.msg_id] || ''} 
-                                    onChange={(e) => handleReplyChange(msg.msg_id, e.target.value)} onKeyDown={(e) => handleKeyDown(e, msg.clerk_user_id, msg.clerk_user_name, msg.msg_id)} />
-                            <div className="sendMsg" onClick={() => sendMessage(msg.clerk_user_id, msg.clerk_user_name, msg.msg_id)}>
-                                <SendHorizonal />
-                            </div>
-                        </div>
-                      )}
+                <div key={msg.msg_id} className="application-card clickable" onClick={() => fetchConversation(msg.clerk_user_id)}>
+                  <div className="application-header">
+                    <h3>{msg.clerk_user_name}</h3>
+                    <p>{msg.time}</p>
                   </div>
-              )) ) : (<p>You don't have any messages.</p>)
-          }
+                  <div className="application-details">
+                    <p className="latest-message">
+                      {msg.from_user ? 'User: ' : 'Admin: '}
+                      {msg.content}
+                    </p>
+                    <button className="view-conversation">View Conversation</button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p>No messages to display.</p>
+            )
+          ) : (
+            // Full conversation view
+            <>
+              <div className="conversation-container">
+                {conversationMessages.map(msg => (
+                  <div key={msg.msg_id} className="message-bubble">
+                    <div className={`message ${msg.from_user ? 'user' : 'admin'}`}>
+                      <div className="message-header">
+                        <span>{msg.from_user ? msg.clerk_user_name : 'Admin'}</span>
+                        <span className="timestamp">{msg.time}</span>
+                      </div>
+                      <p>{msg.content}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="reply-container">
+                <input
+                  type="text"
+                  className="reply-input"
+                  placeholder="Type your reply..."
+                  value={replyContent[selectedConversation] || ''}
+                  onChange={(e) => handleReplyChange(selectedConversation, e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      sendMessage(
+                        selectedConversation,
+                        conversationMessages[0]?.clerk_user_name,
+                        conversationMessages[0]?.msg_id
+                      );
+                    }  
+                  }}
+                />
+                <button 
+                  className="send-button"
+                  onClick={() => {
+                    if (replyContent[selectedConversation]?.trim()) {
+                      sendMessage(
+                        selectedConversation,conversationMessages[0]?.clerk_user_name,conversationMessages[0]?.msg_id
+                      );
+                    }
+                  }}  
+                >
+                  <SendHorizonal />
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   if (loading) {
     return <div className="loading">Loading...</div>;
