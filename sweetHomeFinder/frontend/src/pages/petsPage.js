@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useUser, useAuth } from '@clerk/clerk-react';
 import { supabase } from './supabaseClient';
 import { PawPrint, RotateCw, MessageSquare, ShoppingCart, ArrowUpFromDot, ArrowDownToDot, ArrowUp, SendHorizonal } from 'lucide-react';
-
+import MessagingDialog from '../components/MessagingDialog';  
 import '../styles/petsPage.scss';
 
 function PetsPage() {
@@ -447,50 +447,14 @@ function PetsPage() {
             )}
 
             {openMessages && (
-                <div className="modal">
-                    <div className="modal-content messages">
-                        <span className="close" onClick={toggleMessageDialog}>&times;</span>
-                        <h2>Your Messages</h2>
-                        <div className="applications-list">
-                            <div className="statusDiv">
-                                <button className="refreshBtn" onClick={() => fetchMessages()}>
-                                <RotateCw size={20} />
-                                Refresh Messages
-                                </button>
-                                <p>{sending}</p>
-                            </div>
-                            <div className="newMsg">
-                                <input type="text" class="msgBox" placeholder="New message" value={message} onChange={(e) => setMessage(e.target.value)} onKeyDown={handleKeyDown} />
-                                <div className={`sendMsg ${!message > 0 && ('unready')}`} onClick={sendMessage}>
-                                    <SendHorizonal />
-                                </div>
-                            </div>
-                            {messages.length > 0 ? (
-                                messages.map(msg => (
-                                    <div className="application-card">
-                                        <div className="application-header">
-                                            {msg.from_user == true ? (
-                                                <h3 className='outgoing'>
-                                                    <ArrowUpFromDot size={20} />
-                                                    You to HomeSweetHome
-                                                </h3>
-                                            ) : (
-                                                <h3 className='incoming'>
-                                                    <ArrowDownToDot size={20} />
-                                                    HomeSweetHome to you
-                                                </h3>
-                                            )}
-                                            <p>{msg.time}</p>
-                                        </div>
-                                        <div className="application-details">
-                                            <p>{msg.content}</p>
-                                        </div>
-                                    </div>
-                                )) ) : (<p>You don't have any messages.</p>)
-                            }
-                        </div>
-                    </div>
-                </div>
+                <MessagingDialog
+                    isOpen={openMessages}
+                    onClose={() => setOpenMessages(false)}
+                    user={user}
+                    supabase={supabase}
+                />
+
+
             )}
         </div>
     );
