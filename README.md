@@ -2,11 +2,11 @@
 
 ## Overview
 
-This is the README for our temp repo.
+This is the README for the SweetHomeFinder repo.
 
-1. Clone or fork tempCS440Repo which already includes the project directory and the virtual environment
+1. Clone or fork sweethomefinder which already includes the project directory and the virtual environment
 
-2. Open tempCS440Repo in your IDE
+2. Open sweethomefinder in your IDE
 
 ## To run the node.js & express azure SQL backend
 
