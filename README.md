@@ -8,6 +8,8 @@ This is the README for the SweetHomeFinder repo.
 
 SweetHomeFinder is a React app built to help match potential adopters with their perfect pet. 
 
+[NEW] Video Demo: https://drive.google.com/file/d/1VjXkhOG_sKU3wPEuIXwJagjvewdvWu38/view?usp=drive_link
+
 Overview presentation: https://drive.google.com/file/d/14BmrpuLocbWoPduQCWoFnkkQZcEnDaHY/view?usp=sharing
 
 To run SweetHomeFinder:
